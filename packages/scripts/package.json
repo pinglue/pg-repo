@@ -1,0 +1,12 @@
+{
+  "name": "scripts",
+  "description": "Used for monorepo operations only - Will be replaced in the future with pg cli commands",
+  "private": true,
+  "devDependencies": {
+    "commander": "^8.2.0",
+    "fs-extra": "^10.0.0",
+    "json-beautify": "^1.1.1",
+    "micromatch": "^4.0.4",
+    "yaml": "^1.10.2"
+  }
+}

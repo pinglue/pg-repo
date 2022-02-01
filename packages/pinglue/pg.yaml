@@ -1,0 +1,44 @@
+
+id: pg
+
+settings:
+
+  type: object
+
+  properties:
+
+    hub:  #settings schema for the hub
+      type: object
+
+      properties:
+
+        localLogger:
+          type: object
+          properties:
+            import:
+              type: string
+            filePath:
+              type: string
+
+        logger:
+          type: object
+          properties:
+            runLogChannel:
+              type: boolean
+              default: false
+
+        groups:
+          type: array
+          items:
+            type: string
+          default:
+            - admin
+            - regular
+
+        security:
+          type: string
+
+    registry: # settings schema for a pinglue project
+      type: object
+      
+      properties:

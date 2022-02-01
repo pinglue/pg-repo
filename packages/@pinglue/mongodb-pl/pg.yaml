@@ -1,0 +1,46 @@
+
+id: mongodb-pl
+
+envVars:
+  - host
+  - port
+  - username
+  - password
+
+settings:
+
+  type: object
+
+  properties:
+  
+    dbName:
+      type: string
+      default: pinglueDB
+
+    host:
+      type: string
+      default: localhost
+
+    port:
+      type: number
+      default: 27017
+
+    username:
+      type: string
+
+    password:
+      type: string
+
+    queryString:
+      type: string
+
+      
+    driverOptions:
+      type: object
+      properties:
+        useUnifiedTopology: 
+          type: boolean
+          default: true
+
+    
+    
