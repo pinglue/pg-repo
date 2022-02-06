@@ -168,7 +168,7 @@ export class PkgLoader extends Loader {
         record.importPath = _getImportPath(pkgName, route);
 
         // gettings file path
-        // TODO: make filePath to be array as well, some packages, partoicularly pinglue, have more than one entry file. Then apply this change to pinglue package (so that the watch source can watch all the files there)
+        // TODO(#19): make filePath to be array as well, some packages, partoicularly pinglue, have more than one entry file. Then apply this change to pinglue package (so that the watch source can watch all the files there)
         if (
             route !== null
         ) {
@@ -317,7 +317,7 @@ export class PkgLoader extends Loader {
         /* loading classref
         ------------------------ */
 
-        // TODO: this condition excludes pinglue package, we still need to watch pinglue source ... (but do we? ...)
+        // TODO(#20): this condition excludes pinglue package, we still need to watch pinglue source ... (but do we? ...)
         if (
             route !== null
         ) {

@@ -93,5 +93,5 @@ export function defaultValue(
  * @throws [[Result]]
  */
 export function validateSchema(jss: Object): void {
-    // TODO
+    // TODO(#16)
 }

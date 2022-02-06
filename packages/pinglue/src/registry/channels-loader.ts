@@ -71,7 +71,7 @@ export class ChannelsLoader extends Loader {
 
     async load(): Promise<Output> {
 
-        // TODO: format validation
+        // TODO(#14)
 
         if (!await fs.pathExists(this.#filePath))
             return {data:null};

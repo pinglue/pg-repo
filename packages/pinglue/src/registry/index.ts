@@ -270,7 +270,7 @@ export class Registry extends Loader {
         this.#projectInfo = infoLoaderO.data.pkgInfo;
         this.#projectPkgJson = infoLoaderO.data.pkgJson;
 
-        // TODO: validating pkg json of the project
+        // TODO(#15): validating pkg json of the project
         this.print.mute(`Package name: ${this.#projectPkgJson.name}\n`);
 
         // no data path!

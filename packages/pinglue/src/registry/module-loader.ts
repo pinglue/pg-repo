@@ -73,7 +73,7 @@ export class ModuleLoader extends Loader {
 
             try {
 
-                // TODO: use some hot module mechanism
+                // TODO(#17): use some hot module mechanism
                 const module = await import(
                     filePath
                 );
@@ -103,7 +103,7 @@ export class ModuleLoader extends Loader {
                 .watchSource
         ) {
 
-            // TODO: find the project root instead
+            // TODO(#18): find the project root instead
             const curAbsPath = path.resolve(".");
 
             this.#depsWatcher = chokidar.watch([])
@@ -118,7 +118,7 @@ export class ModuleLoader extends Loader {
 
             for(const fp of files) {
 
-                // TODO: replace . with project root
+                // TODO(#18): replace . with project root
                 const list = depTree.toList({
                     filename: fp,
                     directory: ".",

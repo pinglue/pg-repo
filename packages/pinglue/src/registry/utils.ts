@@ -234,7 +234,7 @@ export function _getImportPath(
 }
 
 /**
- * TODO: use json schema
+ * TODO(#16): use json schema
  * @param info
  * @returns
  * @throws when serios error
@@ -311,7 +311,7 @@ export async function _getRoutes(
 
     }
 
-    // TODO: merge in the routes from the pg.yaml
+    // TODO(#21): merge in the routes from the pg.yaml
 
     return ans;
 
