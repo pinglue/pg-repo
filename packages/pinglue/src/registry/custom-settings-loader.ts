@@ -23,7 +23,7 @@ import {
 
 import type {
     RegistrySettings,
-    CustomSettings,
+    CustomSettings
 } from "./index";
 
 //======================================
@@ -34,7 +34,7 @@ interface Settings extends LoaderSettings {
 }
 
 interface Output extends LoaderOutput {
-    data: CustomSettings,    
+    data: CustomSettings;
 }
 
 export class CustomSettingsLoader extends Loader {
@@ -55,8 +55,8 @@ export class CustomSettingsLoader extends Loader {
             this.#envPath = path.join(
                 this.settings.dataPath,
                 "--envs",
-                this.settings.registrySettings.env+".yaml"
-            )
+                this.settings.registrySettings.env + ".yaml"
+            );
 
         if (this.settings.registrySettings.profiles) {
 
@@ -66,13 +66,15 @@ export class CustomSettingsLoader extends Loader {
                 profiles = [profiles];
 
             if (profiles.length > 0) {
+
                 this.#profilesPaths = profiles.map(
                     profile => path.join(
                         this.settings.dataPath,
                         "--profiles",
-                        profile+".yaml"
+                        profile + ".yaml"
                     )
                 );
+
             }
 
         }
@@ -81,35 +83,41 @@ export class CustomSettingsLoader extends Loader {
             .registrySettings
             .watchSettings
         ) {
+
             if (this.#envPath) {
-                this.#envWatcher = 
+
+                this.#envWatcher =
                     chokidar.watch(this.#envPath)
-                .on(
-                    "change",
-                    this.onFileChange(
-                        "env", "change-settings"
-                    )
-                );
+                        .on(
+                            "change",
+                            this.onFileChange(
+                                "env", "change-settings"
+                            )
+                        );
+
             }
 
             if (this.#profilesPaths) {
-                this.#profilesWatcher = 
+
+                this.#profilesWatcher =
                     chokidar.watch(this.#profilesPaths)
-                    .on(
-                        "change",
-                        this.onFileChange(
-                            "profiles", "change-settings"
-                        )
-                    );
+                        .on(
+                            "change",
+                            this.onFileChange(
+                                "profiles", "change-settings"
+                            )
+                        );
+
             }
+
         }
 
     }
 
-    async load(): Promise<Output|undefined> {
+    async load(): Promise<Output | undefined> {
 
         const paths = [];
-        
+
         if (this.#profilesPaths)
             paths.push(...this.#profilesPaths);
         if (this.#envPath)
@@ -117,22 +125,24 @@ export class CustomSettingsLoader extends Loader {
 
         if (paths.length === 0) return {data:null};
 
-        const errors:Message[] = [];
-        const warnings:Message[] = [];
+        const errors: Message[] = [];
+        const warnings: Message[] = [];
 
         const objs = await Promise.all<Object>(paths.map(
-            p => _readYaml(p).catch(error=>{
-                if (error.code === 
+            async p => _readYaml(p).catch(error=>{
+
+                if (error.code ===
                     "err-yaml-file-not-found"
                 )
                     warnings.push(
                         Msg.warn(
-                            "warn-yaml-file-not-found", 
+                            "warn-yaml-file-not-found",
                             error.data
-                    ));
+                        ));
 
                 else
                     errors.push(error);
+
             })
         ));
 
@@ -146,18 +156,13 @@ export class CustomSettingsLoader extends Loader {
             warnings
         };
 
-
     }
-    
+
     async close() {
-        
 
         await this.#envWatcher?.close();
         await this.#profilesWatcher?.close();
 
-        
     }
-
-
 
 }

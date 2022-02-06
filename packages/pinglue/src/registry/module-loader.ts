@@ -35,7 +35,7 @@ interface Settings extends LoaderSettings {
 }
 
 interface Output extends LoaderOutput {
-    data: typeof Controller
+    data: typeof Controller;
 };
 
 export class ModuleLoader extends Loader {
@@ -45,10 +45,12 @@ export class ModuleLoader extends Loader {
     #depsWatcher: chokidar.FSWatcher;
 
     constructor(settings: Settings) {
+
         super(settings);
+
     }
 
-    async load():Promise<Output> {
+    async load(): Promise<Output> {
 
         const filePath = this.settings.filePath;
 
@@ -66,45 +68,43 @@ export class ModuleLoader extends Loader {
                     filePath
                 });
 
-        
             if (!await fs.pathExists(filePath))
                 throw Msg.error("err-import-file-not-exist", {filePath});
 
-            
-
-            try {        
+            try {
 
                 // TODO: use some hot module mechanism
                 const module = await import(
                     filePath
                 );
-        
+
                 Class = module.default;
-        
+
             }
-            catch (error) {  
-        
+            catch (error) {
+
                 throw Msg.error("err-import-failed", {
                     filePath, error
                 });
-        
+
             }
 
             if (!(Class.prototype instanceof Controller)) {
-                
+
                 throw Msg.error("err-not-controller-instance", {filePath});
-        
+
             }
+
         }
 
         if (
             this.settings
-            .registrySettings
-            .watchSource
+                .registrySettings
+                .watchSource
         ) {
-            
+
             // TODO: find the project root instead
-            const curAbsPath = path.resolve(".");           
+            const curAbsPath = path.resolve(".");
 
             this.#depsWatcher = chokidar.watch([])
                 .on("change", this.onFileChange(
@@ -112,11 +112,12 @@ export class ModuleLoader extends Loader {
                     "change-source"
                 ));
 
-            const files:string[] = Array.isArray(filePath)?
-                    filePath:
-                    [filePath];
+            const files: string[] = Array.isArray(filePath) ?
+                filePath :
+                [filePath];
 
             for(const fp of files) {
+
                 // TODO: replace . with project root
                 const list = depTree.toList({
                     filename: fp,
@@ -127,10 +128,8 @@ export class ModuleLoader extends Loader {
                         )
                 });
                 this.#depsWatcher.add(list);
+
             }
-
-
-            
 
         }
 
@@ -138,15 +137,12 @@ export class ModuleLoader extends Loader {
             data: Class
         };
 
-        
-
     }
 
     async close() {
+
         await this.#depsWatcher?.close();
+
     }
 
-
-
 }
-

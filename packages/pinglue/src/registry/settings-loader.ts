@@ -30,13 +30,12 @@ import {
     defaultValue
 } from "./json-schema.js";
 
-
 //================================
 
 interface Settings extends LoaderSettings {
     pkgName: string;
     pkgInfo: PackageInfo;
-    dataPath: string;    
+    dataPath: string;
     customSettings?: CustomSettings;
     registrySettings: RegistrySettings;
 }
@@ -44,7 +43,7 @@ interface Settings extends LoaderSettings {
 /**
  * Holding the global settings of a specific package (global settings = default <- local <-custom (profile <- env) )
  */
-export class SettingsLoader extends Loader {    
+export class SettingsLoader extends Loader {
 
     protected settings: Settings;
 
@@ -55,10 +54,10 @@ export class SettingsLoader extends Loader {
 
     constructor(settings: Settings) {
 
-        super(settings);        
+        super(settings);
 
         this.#localSettingsPath = path.join(
-            this.settings.dataPath, 
+            this.settings.dataPath,
             this.settings.pkgName,
             "settings.yaml"
         );
@@ -73,40 +72,43 @@ export class SettingsLoader extends Loader {
             .watchSettings
         ) {
 
-            this.#localSettingsWatcher 
+            this.#localSettingsWatcher
                 = chokidar.watch(this.#localSettingsPath)
-            .on(
-                "change",
-                this.onFileChange(
-                    "local-settings","change-settings"
-                )
-            );
-     
+                    .on(
+                        "change",
+                        this.onFileChange(
+                            "local-settings", "change-settings"
+                        )
+                    );
+
         }
 
     }
 
-
     /**
-     * 
-     * @param pkgName 
+     *
+     * @param pkgName
      * @throws
      */
-    async #loadLocalSettings(): Promise<void> {        
+    async #loadLocalSettings(): Promise<void> {
 
         try {
+
             this.#localSettings = await _readYaml(
                 this.#localSettingsPath
             );
+
         }
         catch(error) {
+
             if (error.code === "err-yaml-file-not-found")
                 this.#localSettings = {};
             else
                 throw error;
+
         }
 
-    }    
+    }
 
     /**
      * Computes the ultimate settings for this package - returns deep cloned, no side effects
@@ -114,10 +116,9 @@ export class SettingsLoader extends Loader {
      */
     async load(): Promise<LoaderOutput> {
 
-
         await this.#loadLocalSettings();
 
-        return {data: _merge({}, 
+        return {data: _merge({},
             this.#defaultSettings,
             this.#localSettings,
             this.settings.customSettings?.[this.settings.pkgName]
@@ -126,11 +127,9 @@ export class SettingsLoader extends Loader {
     }
 
     async close() {
-        
 
         await this.#localSettingsWatcher?.close();
 
-        
     }
 
 }

@@ -7,16 +7,6 @@ import {
     _default
 } from "@pinglue/utils";
 
-import {
-    _readYaml
-} from "./utils.js";
-
-import {
-    Loader,
-    LoaderSettings,
-    LoaderOutput
-} from "./loader.js";
-
 import type {
     RegistrySettings,
     PackageRecord,
@@ -25,6 +15,13 @@ import type {
 } from "./index";
 
 import {
+    Loader,
+    LoaderSettings,
+    LoaderOutput
+} from "./loader.js";
+
+import {
+    _readYaml,
     _getPkgPath,
     _validatePkgJson,
     _getFilePath,
@@ -38,20 +35,17 @@ import {ChannelsLoader} from "./channels-loader.js";
 import {SettingsLoader} from "./settings-loader.js";
 import {ModuleLoader} from "./module-loader.js";
 
-
-
-
 //===================================
 
 interface Settings extends LoaderSettings {
-    route: string|null;
-    dataPath: string;    
+    route: string | null;
+    dataPath: string;
     registrySettings: RegistrySettings;
     customSettings?: CustomSettings;
 }
 
 interface Output extends LoaderOutput {
-    data: PackageRecord,    
+    data: PackageRecord;
 }
 
 export class PkgLoader extends Loader {
@@ -64,10 +58,10 @@ export class PkgLoader extends Loader {
     #moduleLoader: ModuleLoader;
 
     constructor(settings: Settings) {
+
         super(settings);
+
     }
-
-
 
     async load(): Promise<Output> {
 
@@ -85,12 +79,11 @@ export class PkgLoader extends Loader {
         // final answer
         const record: PackageRecord = {};
 
-
         /* loading package info
         -------------------------*/
 
         this.print.mute("\tloading package info: ");
-        
+
         await this.#infoLoader?.close();
         this.#infoLoader = new InfoLoader({
             pkgName,
@@ -100,52 +93,56 @@ export class PkgLoader extends Loader {
             style
         });
         this.proxy(this.#infoLoader);
-        
-        const {pkgInfo, pkgJson} = 
-            (await this.#infoLoader.load()).data as {pkgInfo?:PackageInfo, pkgJson?:Object};
+
+        const {pkgInfo, pkgJson} =
+            (await this.#infoLoader.load()).data as {pkgInfo?: PackageInfo; pkgJson?: Object};
 
         // no pg.yaml found - skip this package
         if (!pkgInfo) {
+
             this.print("pg.yaml not found\n");
             return {data:null};
+
         }
-        
+
         // validation
         if (pkgName !== "pinglue") {
+
             let warnings = _validatePkgInfo(pkgInfo).warnings;
             warnings?.forEach(warn=>this.print(warn));
-            warnings 
+            warnings
                 = (await _validatePkgJson(pkgName, pkgJson)).warnings;
             warnings?.forEach(warn=>this.print(warn));
+
         }
         record.info = pkgInfo;
         this.print(this.style.success("Done!\n"));
 
         /* loading routes info
-        ----------------------------- */        
+        ----------------------------- */
 
-        //if (pkgName !== "pinglue") {
+        this.print.mute("\tgettings routes info: ");
 
-            this.print.mute("\tgettings routes info: ");
+        try {
 
-            try {
-                
-                record.routes = await _getRoutes(pkgPath, pkgJson);
-                this.print(this.style.success("Done!\n"));
-            }
-            catch(error) {
-                this.print(this.style.error("Failed!\n"));
+            record.routes = await _getRoutes(pkgPath, pkgJson);
+            this.print(this.style.success("Done!\n"));
 
-                // in general case return load error
-                if (route === null)
-                    return {data: {
-                        ...record,
-                        loadError: error
-                    }};
-                // when route is specified, skip this package
-                else throw error;
-            }
-        //}
+        }
+        catch(error) {
+
+            this.print(this.style.error("Failed!\n"));
+
+            // in general case return load error
+            if (route === null)
+                return {data: {
+                    ...record,
+                    loadError: error
+                }};
+            // when route is specified, skip this package
+            else throw error;
+
+        }
 
         // whether this package has route info for this registry
         if (
@@ -159,7 +156,7 @@ export class PkgLoader extends Loader {
 
                 this.print("The target route is not defined in this package\n");
 
-                return {data:null}
+                return {data:null};
 
             }
             else
@@ -175,28 +172,29 @@ export class PkgLoader extends Loader {
         if (
             route !== null
         ) {
+
             try {
+
                 this.print.mute("\tGetting package entry file: ");
                 record.filePath = await _getFilePath(
                     pkgName, route, pkgPath, record.routes
                 );
                 this.print(this.style.success("Done!\n"));
+
             }
             catch(error) {
 
-                if (error.code==="err-entry-file-not-found")
-                    this.print(this.style.error("Failed!") + " Not found\n");                
-                    
+                if (error.code === "err-entry-file-not-found")
+                    this.print(this.style.error("Failed!") + " Not found\n");
+
                 return {data:{
                     ...record,
                     loadError: error
                 }};
-            
+
             }
+
         }
-
-
-
 
         /* loading channel settings
         ------------------------------ */
@@ -206,7 +204,7 @@ export class PkgLoader extends Loader {
             !registrySettings.noChannels &&
 			pkgName !== "pinglue"
         ) {
-        
+
             this.print.mute("\tloading channels info: ");
 
             await this.#channelsLoader?.close();
@@ -220,30 +218,34 @@ export class PkgLoader extends Loader {
             this.proxy(this.#channelsLoader);
 
             try {
-                record.channels = 
+
+                record.channels =
                     (await this.#channelsLoader.load()).data;
 
                 if (record.channels === null)
                     this.print.mute("Not found\n");
-                else    
+                else
                     this.print(this.style.success("Done!\n"));
 
-                }
+            }
             catch(error) {
+
                 record.channelsLoadError = error;
                 this.print.warn("Invalid channels info", error);
+
             }
+
         }
 
         /* loading settings
         ----------------------- */
-        
+
         if (
-            !registrySettings?.noSettings			
+            !registrySettings?.noSettings
         ) {
 
             this.print.mute("\tloading settings: ");
-            
+
             await this.#settingsLoader?.close();
             this.#settingsLoader = new SettingsLoader({
                 pkgName,
@@ -257,20 +259,23 @@ export class PkgLoader extends Loader {
             this.proxy(this.#settingsLoader);
 
             try {
-                record.settings = 
+
+                record.settings =
                     (await this.#settingsLoader.load()).data;
 
                 this.print(this.style.success("Done!\n"));
+
             }
             catch(error) {
+
                 this.print(this.style.error("Failed!\n"));
                 return {data: {
                     ...record,
                     loadError: error
-                }};            
+                }};
+
             }
 
-            
             // adding channels info
             if (record.channels) {
 
@@ -288,9 +293,11 @@ export class PkgLoader extends Loader {
 
             // assigning package info
             if (pkgName !== "pinglue") {
+
                 record.settings.__pkgInfo = {
                     name: pkgName
                 };
+
             }
 
             // adding data path info
@@ -299,15 +306,12 @@ export class PkgLoader extends Loader {
                 pkgName !== "pinglue"
             ) {
 
-                
                 record.settings.__dataPath = path.join(
                     dataPath, pkgName
                 );
 
-                
+            }
 
-            }  
-            
         }
 
         /* loading classref
@@ -318,13 +322,15 @@ export class PkgLoader extends Loader {
             route !== null
         ) {
 
-            this.print.mute("\timporting controller: ");          
+            this.print.mute("\timporting controller: ");
 
             await this.#moduleLoader?.close();
 
             if (!record.filePath) {
+
                 this.print(this.style.error("Failed!") + " No entry path found\n");
                 return {data:null};
+
             }
 
             this.#moduleLoader = new ModuleLoader({
@@ -337,21 +343,27 @@ export class PkgLoader extends Loader {
             this.proxy(this.#moduleLoader);
 
             try {
-                record.ClassRef = 
+
+                record.ClassRef =
                     (await this.#moduleLoader.load()).data;
                 this.print(this.style.success("Done!\n"));
+
             }
             catch(error) {
+
                 //this.print(this.style.error("Failed!\n"));
                 this.print.error("Failed!", error);
                 return {data:{
                     ...record,
                     loadError: error
-                }}
+                }};
+
             }
+
         }
 
         return {data:record};
+
     }
 
     async close() {
@@ -362,6 +374,7 @@ export class PkgLoader extends Loader {
             this.#settingsLoader.close(),
             this.#moduleLoader.close()
         ]);
+
     }
 
 }

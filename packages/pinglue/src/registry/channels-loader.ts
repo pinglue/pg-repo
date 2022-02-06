@@ -25,7 +25,6 @@ import type {
     RegistrySettings
 } from "./index";
 
-
 //======================================
 
 interface Settings extends LoaderSettings {
@@ -34,7 +33,7 @@ interface Settings extends LoaderSettings {
 }
 
 interface Output extends LoaderOutput {
-    data: Record<string,ChannelInfo>
+    data: Record<string, ChannelInfo>;
 };
 
 export class ChannelsLoader extends Loader {
@@ -47,7 +46,7 @@ export class ChannelsLoader extends Loader {
     constructor(settings: Settings) {
 
         super(settings);
-        
+
         this.#filePath = path.join(
             this.settings.pkgPath,
             "channels",
@@ -61,32 +60,32 @@ export class ChannelsLoader extends Loader {
         ) {
 
             this.#fileWatcher = chokidar.watch(this.#filePath)
-            .on("change", this.onFileChange(
-                "channels-settings",
-                "change-settings"
-            ));
+                .on("change", this.onFileChange(
+                    "channels-settings",
+                    "change-settings"
+                ));
+
         }
+
     }
 
-    async load():Promise<Output> {
+    async load(): Promise<Output> {
 
         // TODO: format validation
-        //const warnings:Message[] = [];
 
         if (!await fs.pathExists(this.#filePath))
             return {data:null};
 
         return {
             data: await _readYaml(this.#filePath)
-        }
-    }
+        };
 
+    }
 
     async close() {
 
         await this.#fileWatcher?.close();
 
     }
-
 
 }

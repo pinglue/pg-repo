@@ -2,28 +2,24 @@
 import path from "path";
 import fs from "fs-extra";
 import yaml from "yaml";
-import {findUp} from 'find-up';
+import {findUp} from "find-up";
 
-import {
+import type {
     Object,
-    Message,
-    _merge
+    Message
 } from "@pinglue/utils";
 
 import {
     Msg,
     _default,
     _freeze,
+    _merge
 } from "@pinglue/utils";
 
 import type {
-    PackageRecord,
     PackageInfo,
-    ProjectSettings,
-    RouteInfo,
     Routes
 } from "./index";
-
 
 //===============================
 
@@ -45,8 +41,8 @@ export function _normalizeRoute(str: string): string {
 }
 
 /**
- * 
- * @param filePath 
+ *
+ * @param filePath
  * @returns json of the yaml file
  * @throws if file not found or yaml format is wrong (data format: {filePath, error}) - error code:
  * - err-yaml-file-not-found
@@ -54,7 +50,7 @@ export function _normalizeRoute(str: string): string {
  * - err-yaml-parse-error
  */
 export async function _readYaml<T extends Object>(
-    filePath:string
+    filePath: string
 ): Promise<T> {
 
     if (!await fs.pathExists(filePath))
@@ -80,7 +76,7 @@ export async function _readYaml<T extends Object>(
 
         return yaml.parse(str, {
             prettyErrors: true
-        });        
+        });
 
     }
     catch(error) {
@@ -91,17 +87,18 @@ export async function _readYaml<T extends Object>(
         });
 
     }
+
 }
 
 /**
- * 
+ *
  * @param pkgName - null/undefined means the current project (=project root)
- * @returns 
+ * @returns
  * @throws if path not found
  */
 export async function _getPkgPath(
     pkgName?: string
-):Promise<string> {    
+): Promise<string> {
 
     const rel = path.join(
         "node_modules",
@@ -109,16 +106,17 @@ export async function _getPkgPath(
     );
 
     const res = await findUp(async dir=>{
+
         const hasRel = await fs.pathExists(
             path.join(dir, rel)
         );
         return hasRel && (
-            pkgName?path.join(dir, rel):dir
+            pkgName ? path.join(dir, rel) : dir
         );
 
     }, {type:"directory"});
 
-    if (!res) 
+    if (!res)
         throw Msg.error(
             "err-path-not-found", {pkgName}
         );
@@ -127,42 +125,40 @@ export async function _getPkgPath(
 
 }
 
-
 /**
  * Performs various checks on the package.json to determine if it's a valid pg module or not. Returns a set of warnings. In case of fatal error throws, which means this package has a serious problem and should not be considered
- * @param pkgJson 
+ * @param pkgJson
  * @throws
  */
- export async function _validatePkgJson(
+export async function _validatePkgJson(
     pkgName: string,
     pkgJson: Object
-): Promise<{warnings:Message[]}> {
+): Promise<{warnings: Message[]}> {
 
-    const warnings:Message[] = [];
+    const warnings: Message[] = [];
 
     // name mismatch
-    if (pkgJson.name !== pkgName) 
+    if (pkgJson.name !== pkgName)
         throw Msg.error("err-pkg-name-mismatch", {
             pkgName,
-            pkgJsonName: pkgJson.name 
+            pkgJsonName: pkgJson.name
         });
 
     // not ESM
     if (pkgJson.type !== "module")
-        throw Msg.error("err-pkg-not-esm", {            
-            type: pkgJson.type || "common-js" 
+        throw Msg.error("err-pkg-not-esm", {
+            type: pkgJson.type || "common-js"
         });
 
     // dependencies
     const deps = Object.keys(pkgJson.dependencies || {});
-           
 
     const DEPS = ["pinglue", "@pinglue/utils"];
 
     const missingDeps = DEPS.filter(
         x => !deps.includes(x)
     );
-    
+
     if (missingDeps.length > 0)
         warnings.push(
             Msg.warn("warn-missing-deps", {missingDeps})
@@ -188,20 +184,22 @@ export async function _getFilePath(
 
     // for pinglue include all the available routes
     if (pkgName === "pinglue") {
+
         return [...routes.values()].map(
-            info => path.resolve(        
+            info => path.resolve(
                 pkgPath,
                 info.path
             )
-        )
+        );
+
     }
 
     const pathName = routes?.get(route)?.path;
 
-    if (!pathName) 
+    if (!pathName)
         throw Msg.error("err-route-not-found");
-    
-    const filePath = path.resolve(        
+
+    const filePath = path.resolve(
         pkgPath,
         pathName
     );
@@ -216,15 +214,15 @@ export async function _getFilePath(
 }
 
 /**
- * 
- * @param pkgName 
- * @param route 
- * @returns 
+ *
+ * @param pkgName
+ * @param route
+ * @returns
  */
 export function _getImportPath(
     pkgName: string,
     route: string
-): string|null {
+): string | null {
 
     if (route === null) return null;
 
@@ -235,43 +233,39 @@ export function _getImportPath(
 
 }
 
-
-
 /**
- * TODO: use json schema 
- * @param info 
- * @returns 
+ * TODO: use json schema
+ * @param info
+ * @returns
  * @throws when serios error
  */
 export function _validatePkgInfo(
     info: PackageInfo
-): {warnings:Message[]} {
-    
+): {warnings: Message[]} {
 
-    const ans:{warnings:Message[]} = {
+    const ans: {warnings: Message[]} = {
         warnings: []
-    }
+    };
 
-    if (!info.id) 
+    if (!info.id)
         throw Msg.error("err-id-not-found");
 
     return ans;
 
 }
 
-
 /**
- * 
+ *
  * @param pkgPath
- * @param pkgJson 
- * @returns 
- * @throws 
+ * @param pkgJson
+ * @returns
+ * @throws
  */
- export async function _getRoutes(
+export async function _getRoutes(
     pkgPath: string,
     pkgJson: Object
 ): Promise<Routes> {
-    
+
     const ans = new Map();
 
     // adding main field info
@@ -280,25 +274,26 @@ export function _validatePkgInfo(
             ".",
             {path: pkgJson.main}
         );
-    
+
     // adding exports field info
     if (pkgJson.exports) {
 
-        const exports:Record<string, string> = 
+        const exports: Record<string, string> =
             pkgJson.exports;
 
         Object.entries(exports).reduce(
             (acc, [route, pathName]) => {
-    
+
                 acc.set(
                     _normalizeRoute(route),
                     {path: pathName}
                 );
-    
+
                 return acc;
-    
+
             }, ans
         );
+
     }
 
     // default to index.js
@@ -308,11 +303,12 @@ export function _validatePkgInfo(
             pkgPath,
             "index.js"
         );
-        
-        if (!await fs.pathExists(defaultPath))        
+
+        if (!await fs.pathExists(defaultPath))
             throw Msg.error("err-no-route-info-found");
 
         ans.set(".", defaultPath);
+
     }
 
     // TODO: merge in the routes from the pg.yaml
@@ -320,4 +316,3 @@ export function _validatePkgInfo(
     return ans;
 
 }
-

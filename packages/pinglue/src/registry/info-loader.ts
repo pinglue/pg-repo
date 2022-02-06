@@ -35,9 +35,9 @@ interface Settings extends LoaderSettings {
 
 interface Output extends LoaderOutput {
     data: {
-        pkgInfo?: Object,
-        pkgJson?: Object
-    }
+        pkgInfo?: Object;
+        pkgJson?: Object;
+    };
 }
 
 export class InfoLoader extends Loader {
@@ -64,55 +64,60 @@ export class InfoLoader extends Loader {
             "package.json"
         );
 
-
         if (this.settings
             .registrySettings
             .watchSettings
         ) {
 
-            this.#pgWatcher = 
+            this.#pgWatcher =
                 chokidar.watch(this.#pgPath)
-            .on(
-                "change",
-                this.onFileChange(
-                    "pg-info", "change-settings"
-                ) 
-            );
+                    .on(
+                        "change",
+                        this.onFileChange(
+                            "pg-info", "change-settings"
+                        )
+                    );
 
-            this.#pjsonWatcher = 
+            this.#pjsonWatcher =
                 chokidar.watch([this.#pjsonPath])
-            .on(
-                "change",
-                this.onFileChange(
-                    "pkg-json", "change-settings"
-                ) 
-            );
+                    .on(
+                        "change",
+                        this.onFileChange(
+                            "pkg-json", "change-settings"
+                        )
+                    );
+
         }
 
     }
 
-    async load():Promise<Output> {
+    async load(): Promise<Output> {
 
-        let pkgInfo:PackageInfo;
+        let pkgInfo: PackageInfo;
 
         try {
-            pkgInfo = await _readYaml(this.#pgPath) as PackageInfo;
+
+            pkgInfo = await _readYaml(this.#pgPath) ;
+
         }
         catch(error) {
-            if (error.code !== "err-yaml-file-not-found") 
+
+            if (error.code !== "err-yaml-file-not-found")
                 throw error;
+
         }
 
         const pkgJson = await fs.readJSON(this.#pjsonPath);
 
         return {data:{pkgInfo, pkgJson}};
+
     }
 
-    
     async close() {
 
         await this.#pgWatcher?.close();
         await this.#pjsonWatcher?.close();
+
     }
 
 }

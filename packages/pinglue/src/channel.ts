@@ -25,7 +25,6 @@ import {
 export type ChannelRunMode
     = "chain" | "chain-breakable" | "no-value";
 
-
 export type ChannelSettings = {
 
     runMode?: ChannelRunMode;
@@ -55,19 +54,19 @@ export type ChannelSettings = {
     externallyHandled?: boolean | {
         hubId?: string;
         appName?: string;
-    }
+    };
 
     // this channel is handled by an external handler, either from another hub or another application
     externallyRun?: boolean | {
         hubId?: string;
         appName?: string;
-    }
+    };
 
     // this channel proxies to another channel in another hub (the exact proxy mechanism varies and is mainly developer's responsibility - pinglue provides no official channel proxy system - it's to be done by the app architect) - Note that a proxi channel should be singleHandled with reducer "single-pass" (but the source channel can be anything)
     proxy?: boolean | {
         hubId?: string;
         channelName?: string;
-    }
+    };
 
     // passed by channel manager
     __log?: PgModuleMessenger;
@@ -75,7 +74,7 @@ export type ChannelSettings = {
     // TODO: security stuff here
 
     // extra fields
-    [extraField:string]: any;
+    [extraField: string]: any;
 };
 
 // to be used in the runS and runA methods
@@ -1152,7 +1151,7 @@ export class Channel {
         }
 
         // merging into the init value
-        return _merge(            
+        return _merge(
             initValue, handlersValue
         );
 

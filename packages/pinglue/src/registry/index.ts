@@ -42,21 +42,21 @@ import {PkgLoader} from "./pkg-loader.js";
 export interface RegistrySettings extends LoaderSettings{
 
     // null or undefined -> no class import for controllers (useful for getting info about packages)
-    route?: string;     
-       
+    route?: string;
+
     // defaults to dev
-    env?: string; 
+    env?: string;
 
     // list of settings profiles to be included
     profiles?: string | string[];
-    
+
     watchSettings?: boolean;
-    
+
     watchSource?: boolean;
 
     // whether to actually import the classes .automatically is set to true if route is null/undefined
-    noImport?: boolean; 
-    
+    noImport?: boolean;
+
     // set all hub/controllers datapath to undefined
     noDataPath?: boolean;
 
@@ -75,7 +75,6 @@ export type RouteInfo = {
 
 // route name format: ./term1/term2
 export type Routes = Map<string, RouteInfo>;
-
 
 // format of pg.yaml of packages
 export type PackageInfo = {
@@ -117,14 +116,13 @@ export type PackageRecord = {
 
 // general structure of env and profile files data
 export type CustomSettings = {
-    [pkgName:string]: Object
-}
+    [pkgName: string]: Object;
+};
 
-
-export type RegistryWatchEventType = 
+export type RegistryWatchEventType =
 
 "source" |          // source code
-"local-settings" |  // data/pkgName/settings.yaml 
+"local-settings" |  // data/pkgName/settings.yaml
 "pg-info" |         // pg.yaml of the package
 "pkg-json" |        // package.json
 "channels-settings" | // yaml files in channels folder
@@ -132,17 +130,16 @@ export type RegistryWatchEventType =
 "env" |     // env setting file
 "profiles"; // profile file(s)
 
-
 export type RegistryWatchEvent = {
     filePath?: string;
     pkgName?: string;   // not set for the project - only set for installed packages on the project
-    type?: RegistryWatchEventType
-    
+    type?: RegistryWatchEventType;
+
 };
 
-export type RegistryWatchCallback = (event: RegistryWatchEvent) => void
+export type RegistryWatchCallback = (event: RegistryWatchEvent) => void;
 
-export type RegistryWatchEventName = "change" | "change-source" | "change-settings"
+export type RegistryWatchEventName = "change" | "change-source" | "change-settings";
 
 export const registryWatchEventNames:
 readonly RegistryWatchEventName[] = Object.freeze([
@@ -151,7 +148,6 @@ readonly RegistryWatchEventName[] = Object.freeze([
     "change-settings"
 ]);
 
-
 enum STATE {
     init,
     loading,
@@ -159,7 +155,7 @@ enum STATE {
 }
 
 interface Output extends LoaderOutput {
-    data: Map<string, PackageRecord> 
+    data: Map<string, PackageRecord>;
 }
 
 export class Registry extends Loader {
@@ -179,7 +175,7 @@ export class Registry extends Loader {
     #projectInfo: Object;
     #projectPkgJson: Object;
     #dataPath: string;
-    #customSettings?:CustomSettings;
+    #customSettings?: CustomSettings;
     #packages: Map<string, PackageRecord> = new Map();
 
     #infoLoader: InfoLoader;
@@ -209,11 +205,12 @@ export class Registry extends Loader {
             this.settings.noImport = true;
 
         }
+
     }
 
     /**
-     * 
-     * @returns 
+     *
+     * @returns
      * @throws (but also prints out the error report)
      */
     async load(): Promise<Output> {
@@ -223,26 +220,30 @@ export class Registry extends Loader {
         this.#state = STATE.loading;
 
         try {
+
             const ans = await this.loadHelper();
             this.#state = STATE.loaded;
             this.print(this.style.hlRev("\n\nRegistry Ending\n\n"));
             return ans;
+
         }
         catch(error) {
+
             this.#state = STATE.init;
             this.print.error("Loading failed: ", error);
             throw error;
+
         }
+
     }
 
-    async loadHelper(): Promise<Output> {        
-                
+    async loadHelper(): Promise<Output> {
 
         /* loading project info
         ---------------------------- */
 
-        const routeMsg = (this.#route !== null)?
-            ` (for route "${this.#route}")`:" (no route)";
+        const routeMsg = (this.#route !== null) ?
+            ` (for route "${this.#route}")` : " (no route)";
 
         this.print(this.style.hlRev(`\n\nRegistry starting${routeMsg}\n\n`));
 
@@ -251,7 +252,7 @@ export class Registry extends Loader {
         );
 
         // project root
-        this.#projectRootPath = await _getPkgPath();        
+        this.#projectRootPath = await _getPkgPath();
         this.print.mute(`Project root: ${this.#projectRootPath}\n`);
 
         // loading project info
@@ -262,7 +263,7 @@ export class Registry extends Loader {
             print: this.print,
             style: this.style
         });
-        this.proxy(this.#infoLoader);        
+        this.proxy(this.#infoLoader);
         const infoLoaderO = await this.#infoLoader.load();
 
         infoLoaderO.warnings?.forEach(warn=>this.print(warn));
@@ -280,21 +281,22 @@ export class Registry extends Loader {
 
             this.print.warn("Data path is disabled, registry will not load settings", {projectSettings: this.#projectInfo});
 
-            if (!this.settings.noSettings)                 
+            if (!this.settings.noSettings)
                 throw Msg.error("err-data-path-disabled-non-project");
             else
                 this.#dataPath = null;
-            
+
         }
         // data path
         else
-            this.#dataPath = 
+            this.#dataPath =
                 this.#projectInfo?.dataPath || "data";
-        
+
         /* loading custom settings
         ------------------------------- */
-        
+
         this.#customSettings = null;
+
         if (!this.settings.noSettings) {
 
             this.print.mute(`Loading project custom settings (env: "${this.settings.env || "NA"}" - profiles: "${this.settings.profiles || "NA"}")\n`);
@@ -308,11 +310,8 @@ export class Registry extends Loader {
             });
             this.proxy(this.#customSettingsLoader);
             const csO = await this.#customSettingsLoader.load();
-            //TODO: human presentable print for warnings
             csO.warnings?.forEach(warn => this.print(warn));
             this.#customSettings = csO.data;
-
-            //this.print.mark("custom settings:", this.#customSettings);
 
         }
 
@@ -323,7 +322,7 @@ export class Registry extends Loader {
             "\n\nExtracting installed pinglue packages info\n\n"
         );
 
-        this.#packages.clear();        
+        this.#packages.clear();
         let count = 0;
 
         // clearing pkg loaders
@@ -350,10 +349,14 @@ export class Registry extends Loader {
             let record: PackageRecord;
 
             try {
+
                 record = (await pkgLoader.load()).data;
+
             }
             catch(error) {
+
                 this.print.error("Failed!", error);
+
             }
 
             if (record) {
@@ -361,6 +364,7 @@ export class Registry extends Loader {
                 this.#pkgLoaders.set(pkgName, pkgLoader);
                 this.#packages.set(pkgName, record);
                 this.proxy(pkgLoader);
+
             }
             count++;
 
@@ -374,10 +378,12 @@ export class Registry extends Loader {
     }
 
     async #clearPkgLoaders() {
+
         await Promise.all<void>([...this.#pkgLoaders.values()].map(
-            ld => ld.close()
+            async ld => ld.close()
         ));
         this.#pkgLoaders.clear();
+
     }
 
     async close() {
@@ -387,11 +393,13 @@ export class Registry extends Loader {
             this.#customSettingsLoader.close(),
             this.#clearPkgLoaders()
         ]);
+
     }
 
-    get route():string {
+    get route(): string {
+
         return this.#route;
+
     }
 
 }
-
