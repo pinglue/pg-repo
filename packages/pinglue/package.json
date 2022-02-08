@@ -1,5 +1,8 @@
 {
   "name": "pinglue",
+  "jest": {
+    "transform": {}
+  },
   "version": "0.0.0",
   "main": "./lib/index.js",
   "exports": {
@@ -8,7 +11,7 @@
   },
   "type": "module",
   "files": [
-    "lib",    
+    "lib",
     "browser.d.ts",
     "pg.yaml"
   ],
@@ -19,18 +22,18 @@
     "watch": "./node_modules/.bin/tsc -w",
     "build-ts": "./node_modules/.bin/tsc -b",
     "clean-extras": "rm *.log",
-    "clean-ts": "rm -rf lib; rm tsconfig.tsbuildinfo",    
+    "clean-ts": "rm -rf lib; rm tsconfig.tsbuildinfo",
     "clean-node": "rm -rf node_modules",
     "clean-all": "npm run clean-extras; npm run clean-ts; npm run clean-node",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
     "lint": "./node_modules/.bin/eslint 'src/**/*.ts'"
-  },  
+  },
   "dependencies": {
     "@pinglue/utils": "^0.0.0",
     "chokidar": "^3.5.2",
     "dependency-tree": "^8.1.1",
     "find-up": "^6.2.0",
-    "fs-extra": "^10.0.0",
+    "memfs": "^3.4.1",
     "yaml": "^1.10.2"
   },
   "devDependencies": {
