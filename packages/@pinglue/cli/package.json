@@ -20,7 +20,8 @@
     "clean-node": "rm -rf node_modules",
     "clean-all": "npm run clean-extras; npm run clean-ts; npm run clean-node",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
-    "lint": "./node_modules/.bin/eslint 'src/**/*.ts'"
+    "lint": "./node_modules/.bin/eslint 'src/**/*.ts'",
+    "build-pg": "rm pg.ts && npm run build-ts && ./lib/build-pg-ts"
   },
   "dependencies": {
     "@pinglue/print": "^0.0.0",
