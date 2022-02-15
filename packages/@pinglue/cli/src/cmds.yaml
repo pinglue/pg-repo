@@ -11,10 +11,11 @@ commands:
         description: "Specifying the profiles for the hub (defaults to dev)"
       - flags: "-k, --pkg <package-name>"
         description: "Show info only for this package"
-    action: "infoAction"
+    action: "info"
 
   - command: "run [route-name]"
     description: "Run the given route (defaults to /)"
     options:
       - flags: "TODO"
-      - description: "TODO"
+        description: "TODO"
+    action: "runRoute"

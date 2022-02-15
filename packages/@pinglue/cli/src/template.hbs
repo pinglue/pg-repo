@@ -1,0 +1,34 @@
+import "source-map-support/register.js";
+
+import {Command} from "commander";
+import {
+    print,
+    style,
+    commanderHelp as help
+} from "@pinglue/print/node";
+
+{{#each commands}}
+import {{{this.action}}}Action from "./actions/{{{this.fileName}}}";
+{{/each}}
+
+const program = new Command();
+
+program.version("0.0.0");
+
+program.configureHelp(help);
+
+program.addHelpText("beforeAll", style.mute("\n~~~~~ Pinglue CLI ~~~~~\n"));
+
+program.addHelpText("afterAll", style.mute("\nHave a nice life! \n"));
+
+{{#each commands}}
+program
+    .command("{{{this.command}}}")
+    .description("{{{this.description}}}")
+    {{#each this.options}}
+    .option("{{{this.flags}}}", "{{{this.description}}}")
+    {{/each}}
+    .action({{{this.action}}}Action({ style, print }));
+{{/each}}
+
+program.parse();
