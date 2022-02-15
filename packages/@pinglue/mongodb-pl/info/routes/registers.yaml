@@ -1,0 +1,22 @@
+"get-mongodb-collection":
+#==============================
+
+  description: "Returns the MongoDB client object. Returns undefined if the client is not avaiable due to some connection error."
+
+  settings:
+    singleHandler: true
+
+  params:
+    type: object
+    properties:
+      name:
+        type: string
+      exact:
+        type: boolean        
+    required: ["name"]
+    additionalProperties: false 
+
+  # basically the client object, no need for schema for this
+  return:
+    type: object
+    additionalProperties: true      

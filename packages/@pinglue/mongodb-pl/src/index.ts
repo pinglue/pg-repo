@@ -31,11 +31,6 @@ export default class extends Controller {
 
         await this.connect();
 
-        // channels
-        this.regChannel("get-mongodb-collection", {
-            singleHandler: true
-        });
-
         // gluings
         this.glue("get-mongodb-collection",
             this.getColHandler.bind(this));
@@ -143,7 +138,7 @@ export default class extends Controller {
             controllerId
         });
 
-        if (!this.db) {            
+        if (!this.db) {
 
             throw Msg.error("err-db-not-initialized");
 
@@ -155,7 +150,7 @@ export default class extends Controller {
 
         }
         catch (err) {
-            
+
             throw Msg.error("err-collection-not-available");
 
         }
