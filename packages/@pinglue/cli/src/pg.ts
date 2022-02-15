@@ -16,7 +16,7 @@ import envTempAction from "./actions/env-temp.js";
 import channelsAction from "./actions/channels.js";
 import channelsManAction from "./actions/channels-man.js";
 import exportAction from "./actions/export.js";
-import dumpRegAction from "./actions/dump-registry.js";
+import dumpRegAction from "./actions/dump-reg.js";
 
 const program = new Command();
 
