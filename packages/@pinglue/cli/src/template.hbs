@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import "source-map-support/register.js";
 
 import {Command} from "commander";
@@ -7,6 +9,7 @@ import {
     commanderHelp as help
 } from "@pinglue/print/node";
 
+// action functions
 {{#each commands}}
 import {{{this.action}}}Action from "./actions/{{{this.fileName}}}";
 {{/each}}
@@ -29,6 +32,6 @@ program
     .option("{{{this.flags}}}", "{{{this.description}}}")
     {{/each}}
     .action({{{this.action}}}Action({ style, print }));
-{{/each}}
 
+{{/each}}
 program.parse();
