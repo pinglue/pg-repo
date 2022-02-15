@@ -2,7 +2,7 @@ import Handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
 import YAML from "yaml";
-// import prettier from "prettier";
+import prettier from "prettier";
 
 const camelToKebab = (str) =>
     str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
@@ -22,5 +22,5 @@ parsedYaml.version = packageJSON.version;
 const vars = parsedYaml;
 
 const result = template(vars);
-// const formattedCode = prettier.format(result, { parser: "babel-ts" });
-fs.writeFileSync(path.resolve("src", "pg-gen.ts"), result);
+const formattedCode = prettier.format(result, { parser: "babel-ts" });
+fs.writeFileSync(path.resolve("src", "pg-gen.ts"), formattedCode);
