@@ -49,7 +49,7 @@ export class ChannelsLoader extends Loader {
 
         this.#filePath = path.join(
             this.settings.pkgPath,
-            "channels",
+            "info",
             this.settings.registrySettings.route,
             "registers.yaml"
         );
