@@ -16,6 +16,8 @@ parsedYaml.commands = parsedYaml.commands.map((i) => ({
     ...i,
     fileName: camelToKebab(i.action) + ".js"
 }));
+const packageJSON = JSON.parse(fs.readFileSync(path.resolve("package.json"), "utf-8"));
+parsedYaml.version = packageJSON.version;
 
 const vars = parsedYaml;
 
