@@ -17,6 +17,7 @@ import channelsAction from "./actions/channels.js";
 import channelsManAction from "./actions/channels-man.js";
 import exportAction from "./actions/export.js";
 import dumpRegAction from "./actions/dump-registry.js";
+import buildChannelsTypes from "./actions/build-channels-types.js";
 
 const program = new Command();
 
@@ -93,5 +94,10 @@ program
     .option("--no-channels", "Registry option")
     .option("--no-settings", "Registry option")
     .action(dumpRegAction({print, style}));
+
+program
+    .command("build-channels-types [route-name]")
+    .description("Build channels type")
+    .action(buildChannelsTypes({print, style}));
 
 program.parse();
