@@ -11,12 +11,12 @@ import {
 
 // action functions
 import infoAction from "./actions/info.js";
-import runRouteAction from "./actions/run-route.js";
+import runRouteAction from "./actions/run.js";
 import envTempAction from "./actions/env-temp.js";
 import channelsAction from "./actions/channels.js";
 import channelsManAction from "./actions/channels-man.js";
 import exportAction from "./actions/export.js";
-import dumpRegAction from "./actions/dump-reg.js";
+import dumpRegAction from "./actions/dump-registry.js";
 
 const program = new Command();
 
