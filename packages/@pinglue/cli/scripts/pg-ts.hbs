@@ -1,3 +1,10 @@
+
+/**
+* THIS FILE IS GENERATED! DO NOT MODIFY MANUALLY
+* To change, use the script `scripts/build-pg.js`
+* or `npm run build-pg` at the package root 
+*/
+
 import "source-map-support/register.js";
 
 import {Command} from "commander";
@@ -9,7 +16,7 @@ import {
 
 // action functions
 {{#each commands}}
-import {{{this.action}}}Action from "./actions/{{{this.fileName}}}";
+import {{{this.action}}} from "./actions/{{{this.fileName}}}";
 {{/each}}
 
 const program = new Command();
@@ -29,7 +36,8 @@ program
     {{#each this.options}}
     .option("{{{this.flags}}}", "{{{this.description}}}")
     {{/each}}
-    .action({{{this.action}}}Action({ style, print }));
+    .action({{{this.action}}}({ style, print }));
 
 {{/each}}
+
 program.parse();

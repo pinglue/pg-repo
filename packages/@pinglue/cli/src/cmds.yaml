@@ -1,4 +1,4 @@
-description: "The stuff we show on the main help page"
+description: "Pinglue CLI tool - for both users and package developers - All in one !!!"
 
 commands:
   - command: "info [route-name]"
@@ -83,6 +83,8 @@ commands:
       - flags: "-k, --pkg <package-name>"
         description: "Show the registry record only for this package"
       - flags: "--no-import"
+        description: "Registry option"
+      - flags: "--no-dataPath"
         description: "Registry option"
       - flags: "--no-channels"
         description: "Registry option"
