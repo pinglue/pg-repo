@@ -1,0 +1,43 @@
+
+/**
+* THIS FILE IS GENERATED! DO NOT MODIFY MANUALLY
+* To change, use the script `scripts/build-pg.js`
+* or `npm run build-pg` at the package root 
+*/
+
+import "source-map-support/register.js";
+
+import {Command} from "commander";
+import {
+    print,
+    style,
+    commanderHelp as help
+} from "@pinglue/print/node";
+
+// action functions
+{{#each commands}}
+import {{{this.action}}} from "./actions/{{{this.fileName}}}";
+{{/each}}
+
+const program = new Command();
+
+program.version("{{version}}");
+
+program.configureHelp(help);
+
+program.addHelpText("beforeAll", style.mute("\n~~~~~ Pinglue CLI ~~~~~\n"));
+
+program.addHelpText("afterAll", style.mute("\nHave a nice life! \n"));
+
+{{#each commands}}
+program
+    .command("{{{this.command}}}")
+    .description("{{{this.description}}}")
+    {{#each this.options}}
+    .option("{{{this.flags}}}", "{{{this.description}}}")
+    {{/each}}
+    .action({{{this.action}}}({ style, print }));
+
+{{/each}}
+
+program.parse();
