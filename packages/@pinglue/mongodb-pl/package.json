@@ -19,7 +19,7 @@
     "watch": "./node_modules/.bin/tsc -w",
     "build-ts": "./node_modules/.bin/tsc -b",
     "clean-extras": "rm *.log",
-    "clean-ts": "rm -rf lib; rm tsconfig.tsbuildinfo",    
+    "clean-ts": "rm -rf lib; rm tsconfig.tsbuildinfo",
     "clean-node": "rm -rf node_modules",
     "clean-all": "npm run clean-extras; npm run clean-ts; npm run clean-node",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
@@ -31,6 +31,7 @@
     "pinglue": "^0.0.0"
   },
   "devDependencies": {
+    "@pinglue/cli": "^0.0.0",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
     "eslint": "^7.31.0",

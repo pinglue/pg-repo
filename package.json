@@ -1,13 +1,10 @@
 {
   "name": "pg-monorepo",
   "private": true,
-
   "devDependencies": {
     "lerna": "^4.0.0"
   },
-
   "scripts": {
-
     "clean-root-dir": "rm *.log",
     "clean-all-packages": "node_modules/.bin/lerna run --stream clean-all",
     "bt": "node_modules/.bin/lerna bootstrap --hoist typescript --hoist @typescript-eslint/* --hoist typedoc --hoist eslint --hoist jest --hoist fs-extra --hoist lerna",
@@ -17,6 +14,5 @@
     "lint": "packages/scripts/lint.sh",
     "add-pg": "packages/scripts/add-pg.sh",
     "add-pg-react": "packages/scripts/add-pg.sh && packages/scripts/add-pg-react.sh"
-    
   }
 }
