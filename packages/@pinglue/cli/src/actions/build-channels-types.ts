@@ -6,40 +6,37 @@ import yaml from 'yaml';
 import jsonToTypeScropt from 'json-schema-to-typescript';
 import { print, style } from "@pinglue/print/node";
 
-function pascalCase(s: string) {
-  return s.replace(/\-{0,1}\b(\S)/g, (_, p1) => p1.toUpperCase());
+function getVariableName(
+  channelName: string,
+  type: string
+) {
+
+  // case of local channel
+  if (channelName.startsWith("--"))
+    channelName = "_"+channelName.substring(2); 
+
+  // to pascal case
+  return `${channelName}-${type}`.replace(
+    /(^|\_|\-)[A-Za-z0-9]/g,
+    (m) => m.toUpperCase().substring(m.startsWith("-")?1:0)
+  );
 }
-
-// function createTypeString(channelname: string, keyname: string, data: {[k: string]: any}): string {
-//   let converted: any;
-//   switch(data.type) {
-//     case 'object':
-//       converted = {
-//         ...data.additionalProperties === true && { '[k: string]': 'any' }
-//       }
-//       for(let key in data.properties) {
-//         const keyname = key + ((data.required as Array<string>).indexOf(key) < 0 ? '?' : '');
-//         converted[keyname] = data.properties[key].type;
-//       }
-//       break;
-//     default: 
-//   }
-
-//   return `export type ${pascalCase(`${channelname}-${keyname}`)} = ${JSON.stringify(converted)}`;
-// }
 
 export default function (settings: CliActionSettings) {
   return async (routeName: string, options: Options) => {
     routeName = routeName || "/";
 
     // Find registers.yaml file and read
-    print('Looking for registers.yaml file...\n');
+    print('Loading registers.yaml file...\n');
 
-    const filepath = path.join('info/routes', routeName, 'registers.yaml');
-    const exists = fs.pathExistsSync(filepath);
-    let file = exists ? fs.readFileSync(filepath, 'utf8') : null;
+    const filepath = path.join('info', 'routes', routeName, 'registers.yaml');
+    
+    const file = 
+      fs.pathExistsSync(filepath) && 
+      fs.readFileSync(filepath, 'utf8');
+
     if (!file) {
-      print.warn('registers.yaml not found. exited. \n');
+      print.warn(`registers.yaml not found for route "${routeName}". Aborted. \n`);
       return;
     }
 
@@ -50,22 +47,22 @@ export default function (settings: CliActionSettings) {
     // 3. Create 3 types (params / value / return) in string format.
     const promises: Promise<string>[] = [];
     let results: string[];
-
     let channels: {[k: string]: {[k: string]: any}};
+
     try{
       channels = yaml.parse(file, {prettyErrors: true});
     } catch(error) {
-      print.error('Could not compile register.yaml into json format. It may be caused because registers.yaml if incorrect format\n');
-      print('Here is more information.');
-      print(style.errorObj(error));
+      print.error('Could not compile register.yaml into json format. It may be caused because registers.yaml has incorrect format:', error);      
       return;
     }
 
-    for(let channel in channels) {
-      for(let key in channels[channel]) {
-        if(['params', 'value', 'return'].find(type => type == key)) {
-          promises.push(jsonToTypeScropt.compile(channels[channel][key], pascalCase(`${channel}-${key}`)));
-        }
+    for(const [channelName, info] of Object.entries(channels)) {
+      for(const type of ['params', 'value', 'return']) {
+        if (!info[type]) continue;        
+        promises.push(jsonToTypeScropt.compile(
+          info[type],
+          getVariableName(channelName, type)
+        ));        
       }
     }
 
@@ -76,26 +73,30 @@ export default function (settings: CliActionSettings) {
 
     try {
       results = await Promise.all(promises);
-    } catch (error) {
-      print.error('Could not compile json data into typescript format properly. It may be caused because registers.yaml is incorrect format\n');
+    } 
+    catch (error) {
+      print.error('Could not compile json data into typescript format properly. It may be caused because registers.yaml has incorrect format\n');
       print('Here is more information.');
       print(style.errorObj(error));
       return;
     }
 
-    print('Compile done. exporting...\n');
+    print.success('Compile done. exporting...\n');
 
     const dirToWrite = path.join('./src', routeName);
+    const destPath = path.join(dirToWrite, 'channels-types.ts');
     try {
       fs.ensureDir(dirToWrite);
-      fs.writeFile(path.join(dirToWrite, 'channels-types.ts'), results.join('\n'));  
+      fs.writeFile(destPath, results.join('\n'));  
     } catch (error) {
-      print.error('Could not export type definitions in channels-types.ts file.\n');
-      print('Here is more information.')
-      print(style.errorObj(error));
+      print.error('Could not export type definitions in channels-types.ts file.', error);
+      return;
     }
 
-    print.success(`Output file is located at ${path.join(dirToWrite, 'channels-types.ts')}\n`)
+    print.success(`Output file is located at ${destPath}\n`);
+
   }
 }
+
+
 
