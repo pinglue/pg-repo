@@ -21,7 +21,8 @@
     "clean-all": "npm run clean-extras; npm run clean-ts; npm run clean-node",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
     "lint": "./node_modules/.bin/eslint 'src/**/*.ts'",
-    "build-pg": "node ./scripts/build-pg.js"
+    "build-pg": "node ./scripts/build-pg.js",
+    "build-action": "node ./scripts/build-actions.js"
   },
   "dependencies": {
     "@pinglue/print": "^0.0.0",

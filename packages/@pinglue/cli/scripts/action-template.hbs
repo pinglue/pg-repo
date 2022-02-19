@@ -1,0 +1,23 @@
+
+import {Registry} from "pinglue";
+
+import type {
+    CliActionSettings
+} from "../cli-settings";
+
+type Options = {
+{{#each allFlags}}
+{{this}}
+{{/each}}
+};
+
+export default function(settings: CliActionSettings) {
+
+    const {print, style} = settings;
+
+    return async(
+        route: string, options: Options
+    ) => {
+       // start here
+   };
+}
