@@ -7,7 +7,7 @@ import YAML from "yaml";
 import prettier from "prettier";
 
 const ACTION_TEMPLATE = "action-template.hbs";
-const ACTIONS_FOLDER = "actions";
+const ACTION_OPTIONS_TEMPLATE = "action-options-template.hbs";
 
 const kebabToCamel = (str) =>
     str
@@ -16,8 +16,12 @@ const kebabToCamel = (str) =>
             group.toUpperCase().replace("-", "").replace("_", "")
         );
 
-const templateFile = fs.readFileSync(
+const actionTemplateFile = fs.readFileSync(
     path.join("scripts", ACTION_TEMPLATE),
+    "utf8"
+);
+const optionsTemplateFile = fs.readFileSync(
+    path.join("scripts", ACTION_OPTIONS_TEMPLATE),
     "utf8"
 );
 
@@ -32,11 +36,9 @@ const allCommandsInCmdFile = parsedYaml.commands.map(
     (i) => i.command.split(" ")[0]
 );
 
-const missingFileNames = allCommandsInCmdFile.filter(
-    (x) => !filesInDir.includes(x)
-);
+// Build Action Files
 
-for (const fileName of missingFileNames) {
+for (const fileName of allCommandsInCmdFile) {
 
     const { options } = parsedYaml.commands.find((i) =>
         i.command.startsWith(fileName)
@@ -81,10 +83,33 @@ for (const fileName of missingFileNames) {
 
     }
 
-    const template = Handlebars.compile(templateFile.toString());
+    const template = Handlebars.compile(optionsTemplateFile.toString());
 
     const formattedCode = prettier.format(
         template({ allFlags }),
+        { parser: "babel-ts" }
+    );
+
+    fs.writeFileSync(
+        path.join("src", "actions", fileName + "-options.ts"),
+        formattedCode,
+        { encoding: "utf8" }
+    );
+
+}
+
+const missingFileNames = allCommandsInCmdFile.filter(
+    (x) => !filesInDir.includes(x)
+);
+
+for (const fileName of missingFileNames) {
+
+
+
+    const template = Handlebars.compile(actionTemplateFile.toString());
+
+    const formattedCode = prettier.format(
+        template({ fileName }),
         { parser: "babel-ts" }
     );
 
@@ -93,6 +118,5 @@ for (const fileName of missingFileNames) {
         formattedCode,
         { encoding: "utf8" }
     );
-
 
 }

@@ -5,11 +5,7 @@ import type {
     CliActionSettings
 } from "../cli-settings";
 
-type Options = {
-{{#each allFlags}}
-{{this}}
-{{/each}}
-};
+import Options from "./{{{fileName}}}-options"
 
 export default function(settings: CliActionSettings) {
 
