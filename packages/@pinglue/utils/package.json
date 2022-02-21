@@ -4,7 +4,7 @@
   "main": "./lib/index.js",
   "exports": {
     ".": "./lib/index.js",
-    "./testing": "./lib/testing/index.js",
+    "./testing/replace-module": "./lib/testing/replace-module.js",
     "./testing/fake-fs": "./lib/testing/fake-fs.js"
   },
   "type": "module",
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "memfs": "^3.4.1",
-    "testdouble": "^3.16.4"
+    "quibble": "^0.6.8"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.28.5",

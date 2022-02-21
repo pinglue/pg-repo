@@ -1,5 +1,5 @@
 
-import * as td from "testdouble";
+import quibble from "quibble";
 
 export async function replaceModule(
     originalModuleName: string,
@@ -10,20 +10,24 @@ export async function replaceModule(
     if (!originalModuleName)
         throw new Error("No module name given");
 
-    await td.replaceEsm(
+    // CommonJS replacement
+    quibble(
+        originalModuleName, fakeInstance
+    );
+
+    // ESM replacement
+    await quibble.esm(
         originalModuleName,
         fakeInstance,
         fakeDefaultEsmInstance || fakeInstance
-    );
-
-    await td.replace(
-        originalModuleName, fakeInstance
     );
 
 }
 
 export function resetModules() {
 
-    td.reset();
+    quibble.reset();
 
 }
+
+export * from "quibble";

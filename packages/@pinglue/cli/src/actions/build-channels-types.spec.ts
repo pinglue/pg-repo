@@ -1,6 +1,6 @@
 
 import {expect} from "chai";
-import {replaceModule, resetModules} from "@pinglue/utils/testing";
+import {replaceModule, resetModules} from "@pinglue/utils/testing/replace-module";
 import {fakeFs, fakeVolume} from "@pinglue/utils/testing/fake-fs";
 import {emptyPrint as print, emptyStyle as style} from "@pinglue/utils";
 import {CliActionSettings} from "../cli-settings";
