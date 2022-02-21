@@ -4,6 +4,8 @@ import path from "path";
 import yaml from "yaml";
 import jsonToTypeScropt from "json-schema-to-typescript";
 
+export const WARN_REGISTERS_YAML_NOT_FOUND = (routeName) => `registers.yaml not found for route "${routeName}". Aborted. \n`;
+
 function getVariableName(
     channelName: string,
     type: string
@@ -27,7 +29,7 @@ export default function(settings: CliActionSettings) {
 
     return async(routeName: string, options: any) => {
 
-        routeName = routeName || "/";
+        routeName = routeName || "./";
 
         // Find registers.yaml file and read
         print("Loading registers.yaml file...\n");
@@ -40,7 +42,7 @@ export default function(settings: CliActionSettings) {
 
         if (!file) {
 
-            print.warn(`registers.yaml not found for route "${routeName}". Aborted. \n`);
+            print.warn(WARN_REGISTERS_YAML_NOT_FOUND(routeName));
             return;
 
         }
