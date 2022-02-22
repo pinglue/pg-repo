@@ -4,7 +4,6 @@ import fs from 'fs-extra';
 import path from 'path';
 import yaml from 'yaml';
 import jsonToTypeScropt from 'json-schema-to-typescript';
-import { print, style } from "@pinglue/print/node";
 
 function getVariableName(
   channelName: string,
@@ -25,6 +24,7 @@ function getVariableName(
 export default function (settings: CliActionSettings) {
   return async (routeName: string, options: Options) => {
     routeName = routeName || "/";
+    const {print, style} = settings;
 
     // Find registers.yaml file and read
     print('Loading registers.yaml file...\n');
@@ -40,7 +40,7 @@ export default function (settings: CliActionSettings) {
       return;
     }
 
-    print('registres.yaml file found. compiling...\n');
+    print('registers.yaml file found. compiling...\n');
 
     // 1. Convert each yaml to json, 
     // 2. Get each channel data.
@@ -52,7 +52,7 @@ export default function (settings: CliActionSettings) {
     try{
       channels = yaml.parse(file, {prettyErrors: true});
     } catch(error) {
-      print.error('Could not compile register.yaml into json format. It may be caused because registers.yaml has incorrect format:', error);      
+      print.error('Could not compile registers.yaml into json format. It may be caused because registers.yaml has incorrect format:', error);      
       return;
     }
 
@@ -61,7 +61,8 @@ export default function (settings: CliActionSettings) {
         if (!info[type]) continue;        
         promises.push(jsonToTypeScropt.compile(
           info[type],
-          getVariableName(channelName, type)
+          getVariableName(channelName, type),
+          {bannerComment: '/* generated automatically by pinglue-cli */'}
         ));        
       }
     }

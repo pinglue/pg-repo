@@ -4,16 +4,16 @@ import fs from 'fs-extra';
 import path from 'path';
 import yaml from 'yaml';
 import jsonToTypeScript from 'json-schema-to-typescript';
-import { print, style } from "@pinglue/print/node";
 
 export default function (settings: CliActionSettings) {
   return async (routeName: string, options: Options) => {
-    routeName = routeName || '/';
+    routeName = routeName || './';
+    const {print, style} = settings;
 
     // Find registers.yaml file and read
     print('Loading pg.yaml file...\n');
 
-    const filepath = path.join('pg.yaml');
+    const filepath = 'pg.yaml';
 
     const file =
       fs.pathExistsSync(filepath) &&
@@ -37,7 +37,7 @@ export default function (settings: CliActionSettings) {
     let promise: Promise<String>;
     for (let [key, val] of Object.entries(json)) {
       if (key === 'settings') {
-        promise = jsonToTypeScript.compile(val,'Settings');
+        promise = jsonToTypeScript.compile(val,'Settings', {bannerComment: '/* generated automatically by pinglue-cli */'});
       }
     }
 
@@ -50,18 +50,15 @@ export default function (settings: CliActionSettings) {
     try {
       settingsType = await promise;      
     } catch (error) {
-      print.error('Could not compile settings data into typescript format properly. It may be caused because pg.yaml has incorrect format\n');
-      print('Here is more information.');
-      print(style.errorObj(error));
+      print.error('Could not compile settings data into typescript format properly. It may be caused because pg.yaml has incorrect format\n', error);
       return;
     }
 
     print.success('Compile done. exporting...\n');
 
-    const dirToWrite = path.join('./src');
-    const destPath = path.join(dirToWrite, 'settings.ts');
+    const destPath = path.join('./src', 'settings.ts');
     try {
-      fs.ensureDir(dirToWrite);
+      // fs.ensureDir(dirToWrite);
       fs.writeFile(destPath, settingsType);  
     } catch (error) {
       print.error('Could not export type definitions in settings.ts file.', error);
