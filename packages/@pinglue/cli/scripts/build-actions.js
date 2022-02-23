@@ -36,48 +36,35 @@ const allCommandsInCmdFile = parsedYaml.commands.map(
     (i) => i.command.split(" ")[0]
 );
 
-// Build Action Files
+// Build Action Files Options
 
-for (const fileName of allCommandsInCmdFile) {
+for (const info of parsedYaml.commands) {
 
-    const { options } = parsedYaml.commands.find((i) =>
-        i.command.startsWith(fileName)
-    );
     const allFlags = [];
 
-    for (const { flags: flag } of options) {
+    for (const { flags } of info.options) {
 
-        if (flag.includes("<") && flag.includes(">")) {
+        if (flags.match(/<.+>/)) {
 
             // Mandatory String
-            const flagName = flag.split(" ")[1].replace("--", "");
+            const flagName = flags.split(" ")[1].replace("--", "");
             allFlags.push(kebabToCamel(flagName) + ": string;");
 
         }
-        else if (flag.includes("[") && flag.includes("]")) {
+        else if (flags.match(/\[.+\]/)) {
 
             // Optional String
-            const flagName = flag.split(" ")[1].replace("--", "");
+            const flagName = flags.split(" ")[1].replace("--", "");
             allFlags.push(kebabToCamel(flagName) + "?: string;");
 
         }
         else {
 
             // Boolean
-            const splited = flag.split(" ");
-
-            if (splited.length == 2) {
-
-                const flagName = splited[1].replace("--", "");
-                allFlags.push(kebabToCamel(flagName) + "?: boolean;");
-
-            }
-            else {
-
-                const flagName = splited[0].replace("--", "");
-                allFlags.push(kebabToCamel(flagName) + "?: boolean;");
-
-            }
+            const splitted = flags.split(" ");
+            let flagName;
+            flagName = splitted[splitted.length - 1].replace("--", "");
+            allFlags.push(kebabToCamel(flagName) + "?: boolean;");
 
         }
 
@@ -85,11 +72,10 @@ for (const fileName of allCommandsInCmdFile) {
 
     const template = Handlebars.compile(optionsTemplateFile.toString());
 
-    const formattedCode = prettier.format(
-        template({ allFlags }),
-        { parser: "babel-ts" }
-    );
-
+    const formattedCode = prettier.format(template({ allFlags }), {
+        parser: "babel-ts"
+    });
+    const fileName = info.command.split(" ")[0];
     fs.writeFileSync(
         path.join("src", "actions", fileName + "-options.ts"),
         formattedCode,
@@ -104,14 +90,11 @@ const missingFileNames = allCommandsInCmdFile.filter(
 
 for (const fileName of missingFileNames) {
 
-
-
     const template = Handlebars.compile(actionTemplateFile.toString());
 
-    const formattedCode = prettier.format(
-        template({ fileName }),
-        { parser: "babel-ts" }
-    );
+    const formattedCode = prettier.format(template({ fileName }), {
+        parser: "babel-ts"
+    });
 
     fs.writeFileSync(
         path.join("src", "actions", fileName + ".ts"),
