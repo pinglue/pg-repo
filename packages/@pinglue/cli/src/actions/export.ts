@@ -1,4 +1,5 @@
 
+// TODO: shall we use prettier instead?
 import beautify from "js-beautify";
 import fs from "fs-extra";
 

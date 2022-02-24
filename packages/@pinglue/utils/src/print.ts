@@ -11,7 +11,7 @@ import {messageTypes} from "./message.js";
 /* Printer
 ==================================== */
 
-type PrintType = MessageType | "mute" | "header";
+export type PrintType = MessageType | "mute" | "header";
 
 export type Printer = {
     (msg: Message): void;
@@ -23,7 +23,7 @@ export type Printer = {
 
 /* Styler
 ============================= */
-type StyleType = PrintType | "errorRev" | "hl" | "hlRev" | "bold" | "badge" | "obj" | "errorObj" | "time";
+export type StyleType = PrintType | "errorRev" | "hl" | "hlRev" | "bold" | "badge" | "obj" | "errorObj" | "time";
 
 export type Styler = {
     [type in StyleType]?: (input: string | number | Object) => any

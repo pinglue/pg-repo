@@ -8,7 +8,7 @@ import type {
 
 type Options = {
     env?: string;
-    profiles?: string | string[]
+    profiles?: string | string[];
 };
 
 // TODO: compare the hun report with the channels man to make sure they are exactly the same (except for the default values)
@@ -21,7 +21,6 @@ export default function(settings: CliActionSettings) {
 
         routeName = routeName || "/";
 
-        
         const {hub} = await createApp(routeName, {
             factory: {
                 env:options.env || "local",

@@ -15,7 +15,7 @@ type Options = {
     channel?: string;
     full?: boolean;
     env?: string;
-    profiles?: string | string[]
+    profiles?: string | string[];
 
 };
 
