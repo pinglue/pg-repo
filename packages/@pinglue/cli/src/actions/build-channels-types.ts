@@ -2,7 +2,7 @@ import { CliActionSettings } from "cli-settings";
 import fs from "fs-extra";
 import path from "path";
 import yaml from "yaml";
-import jsonToTypeScropt from "json-schema-to-typescript";
+import jsonToTypeScript from "json-schema-to-typescript";
 
 export const WARN_REGISTERS_YAML_NOT_FOUND = (routeName) => `registers.yaml not found for route "${routeName}". Aborted. \n`;
 
@@ -47,7 +47,7 @@ export default function(settings: CliActionSettings) {
 
         }
 
-        print("registres.yaml file found. compiling...\n");
+        print("registers.yaml file found. compiling...\n");
 
         // 1. Convert each yaml to json,
         // 2. Get each channel data.
@@ -73,9 +73,10 @@ export default function(settings: CliActionSettings) {
             for(const type of ["params", "value", "return"]) {
 
                 if (!info[type]) continue;
-                promises.push(jsonToTypeScropt.compile(
+                promises.push(jsonToTypeScript.compile(
                     info[type],
-                    getVariableName(channelName, type)
+                    getVariableName(channelName, type),
+                    {bannerComment: '/* generated automatically by pinglue-cli */'}
                 ));
 
             }
