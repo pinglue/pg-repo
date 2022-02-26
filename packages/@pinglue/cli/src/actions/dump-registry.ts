@@ -5,10 +5,12 @@ import type {
     CliActionSettings
 } from "../cli-settings";
 
+import {filterMatch} from "../utils/filter-match.js";
+
 type Options = {
     env?: string;
     profiles?: string | string[];
-    pkg?: string;
+    filter?: string;
 
     import?: boolean;
     dataPath?: boolean;
@@ -56,39 +58,22 @@ export default function(settings: CliActionSettings) {
                 print.error("Empty data field in the registery's response", {ans});
                 return;
 
-            }
+            }          
+            
+            print.header("\n\nRegistry records dump:\n");
+            print.header("=".repeat(80) + "\n\n");
 
-            if (options.pkg) {
+            for(const [pkgName, record] of ans.data) {
 
-                const data = ans.data.get(options.pkg);
+                if (!filterMatch(pkgName, options.filter))
+                    continue;
 
-                if (!data) {
+                print(style.warn(pkgName) + "\n");
+                print("-".repeat(80) + "\n");
+                print(style.obj(record));
+                print("\n\n");
 
-                    print(`No record found for the package "${options.pkg}"\n\n`);
-                    return;
-
-                }
-
-                print.header(`\n\nRegistry record dump for package "${options.pkg}":\n`);
-                print.header("=".repeat(80) + "\n\n");
-                print(style.obj(data));
-
-            }
-            else {
-
-                print.header("\n\nRegistry records dump:\n");
-                print.header("=".repeat(80) + "\n\n");
-
-                for(const [pkgName, record] of ans.data) {
-
-                    print(style.warn(pkgName) + "\n");
-                    print("-".repeat(80) + "\n");
-                    print(style.obj(record));
-                    print("\n\n");
-
-                }
-
-            }
+            }            
 
         }
         catch(error) {

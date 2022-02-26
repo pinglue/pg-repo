@@ -7,11 +7,12 @@ import type {
 } from "../cli-settings";
 
 import {channelReport} from "../utils/channel-report.js";
+import {filterMatch} from "../utils/filter-match.js";
 
 //=============================================
 
 type Options = {
-    pkg?: string;
+    filter?: string;
     channel?: string;
     full?: boolean;
     env?: string;
@@ -43,10 +44,8 @@ export default function(settings: CliActionSettings) {
         for(const [pkgName, record] of packages) {
 
             // package filter
-            if (
-                options.pkg &&
-                pkgName !== options.pkg
-            )   continue;
+            if (!filterMatch(pkgName, options.filter))
+                continue;
 
             if (!options.channel) {
 
@@ -102,10 +101,8 @@ export default function(settings: CliActionSettings) {
                 Object.entries(record.channels)) {
 
                 // channel filter
-                if (
-                    options.channel &&
-                    channelName !== options.channel
-                )   continue;
+                if(!filterMatch(channelName, options.channel))
+                    continue;
 
                 _merge(info, {
                     settings: {

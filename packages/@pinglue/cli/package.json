@@ -14,7 +14,7 @@
   },
   "scripts": {
     "watch": "./node_modules/.bin/tsc -w",
-    "build-ts": "./node_modules/.bin/tsc -b",
+    "build-ts": "npm run build-pg && ./node_modules/.bin/tsc -b",
     "clean-extras": "rm *.log",
     "clean-ts": "rm -rf lib; rm tsconfig.tsbuildinfo",
     "clean-node": "rm -rf node_modules",

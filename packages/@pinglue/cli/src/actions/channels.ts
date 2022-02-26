@@ -5,10 +5,12 @@ import {channelReport} from "../utils/channel-report.js";
 import type {
     CliActionSettings
 } from "../cli-settings";
+import { filterMatch } from "../utils/filter-match.js";
 
 type Options = {
     env?: string;
     profiles?: string | string[];
+    channel?: string;
 };
 
 // TODO: compare the hun report with the channels man to make sure they are exactly the same (except for the default values)
@@ -19,7 +21,7 @@ export default function(settings: CliActionSettings) {
 
     return async(routeName, options: Options) => {
 
-        routeName = routeName || "/";
+        routeName = routeName || "./";
 
         const {hub} = await createApp(routeName, {
             factory: {
@@ -37,6 +39,7 @@ export default function(settings: CliActionSettings) {
 
         [...report]
             .sort((a, b)=>a[0].localeCompare(b[0]))
+            .filter(([channelName])=>filterMatch(channelName, options.channel))
             .forEach(([channelName, chanReport])=>channelReport(
                 channelName,
                 chanReport,

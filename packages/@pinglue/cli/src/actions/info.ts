@@ -16,10 +16,12 @@ import type {
     CliActionSettings
 } from "../cli-settings";
 
+import {filterMatch} from "../utils/filter-match.js";
+
 type Options = {
     env?: string;
     profiles?: string | string[];
-    pkg?: string;
+    filter?: string;
 };
 
 type InfoSegment = {
@@ -125,24 +127,12 @@ async function getGeneralInfo(
     const reg = new Registry(settings);
     const {data: packages} = await reg.load();
 
-    const ans = new Map<string, PkgInfo>();
-
-    if (cliOptions.pkg) {
-
-        if (packages.has(cliOptions.pkg)) {
-
-            ans.set(
-                cliOptions.pkg,
-                _getPkgInfo(packages.get(cliOptions.pkg), style, options)
-            );
-
-        }
-
-        return ans;
-
-    }
+    const ans = new Map<string, PkgInfo>();    
 
     for(const [pkgName, record] of packages) {
+
+        if (!filterMatch(pkgName, cliOptions.filter))
+            continue;
 
         ans.set(
             pkgName,
