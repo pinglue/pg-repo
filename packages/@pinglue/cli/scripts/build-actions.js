@@ -16,90 +16,112 @@ const kebabToCamel = (str) =>
             group.toUpperCase().replace("-", "").replace("_", "")
         );
 
-const actionTemplateFile = fs.readFileSync(
-    path.join("scripts", ACTION_TEMPLATE),
-    "utf8"
-);
-const optionsTemplateFile = fs.readFileSync(
-    path.join("scripts", ACTION_OPTIONS_TEMPLATE),
-    "utf8"
-);
+const processCommand = (commands) => {
 
-// Find Missing Action Files
-const filesInDir = fs
-    .readdirSync(path.join("src", "actions"))
-    .map((i) => i.replace(".ts", ""));
+    const actionTemplateFile = fs.readFileSync(
+        path.join("scripts", ACTION_TEMPLATE),
+        "utf8"
+    );
 
-const yamlText = fs.readFileSync(path.join("src", "cmds.yaml"), "utf8");
-const parsedYaml = YAML.parse(yamlText);
-const allCommandsInCmdFile = parsedYaml.commands.map(
-    (i) => i.command.split(" ")[0]
-);
+    for (const fileName of commands) {
 
-// Build Action Files Options
+        const template = Handlebars.compile(actionTemplateFile.toString());
 
-for (const info of parsedYaml.commands) {
+        const formattedCode = prettier.format(template({ fileName }), {
+            parser: "babel-ts"
+        });
 
-    const allFlags = [];
+        try {
 
-    for (const { flags } of info.options) {
-
-        if (flags.match(/<.+>/)) {
-
-            // Mandatory String
-            const flagName = flags.split(" ")[1].replace("--", "");
-            allFlags.push(kebabToCamel(flagName) + ": string;");
+            fs.writeFileSync(
+                path.join("src", "actions", fileName + ".ts"),
+                formattedCode,
+                { encoding: "utf8", flag: "wx" }
+            );
 
         }
-        else if (flags.match(/\[.+\]/)) {
+        catch (error) {
 
-            // Optional String
-            const flagName = flags.split(" ")[1].replace("--", "");
-            allFlags.push(kebabToCamel(flagName) + "?: string;");
-
-        }
-        else {
-
-            // Boolean
-            const splitted = flags.split(" ");
-            let flagName;
-            flagName = splitted[splitted.length - 1].replace("--", "");
-            allFlags.push(kebabToCamel(flagName) + "?: boolean;");
+            // -17 is error code for duplicate files
+            if (error?.errno != -17)
+                console.log(error);
 
         }
 
     }
 
-    const template = Handlebars.compile(optionsTemplateFile.toString());
+};
 
-    const formattedCode = prettier.format(template({ allFlags }), {
-        parser: "babel-ts"
-    });
-    const fileName = info.command.split(" ")[0];
-    fs.writeFileSync(
-        path.join("src", "actions", fileName + "-options.ts"),
-        formattedCode,
-        { encoding: "utf8" }
+const processOptions = (commands) => {
+
+    const optionsTemplateFile = fs.readFileSync(
+        path.join("scripts", ACTION_OPTIONS_TEMPLATE),
+        "utf8"
     );
 
-}
+    for (const info of commands) {
 
-const missingFileNames = allCommandsInCmdFile.filter(
-    (x) => !filesInDir.includes(x)
-);
+        const allFlags = [];
 
-for (const fileName of missingFileNames) {
+        for (const { flags } of info.options) {
 
-    const template = Handlebars.compile(actionTemplateFile.toString());
+            if (flags.match(/<.+>/)) {
 
-    const formattedCode = prettier.format(template({ fileName }), {
-        parser: "babel-ts"
-    });
+                // Mandatory String
+                const flagName = flags.split(" ")[1].replace("--", "");
+                allFlags.push(kebabToCamel(flagName) + ": string;");
 
-    fs.writeFileSync(
-        path.join("src", "actions", fileName + ".ts"),
-        formattedCode,
-        { encoding: "utf8" }
+            }
+            else if (flags.match(/\[.+\]/)) {
+
+                // Optional String
+                const flagName = flags.split(" ")[1].replace("--", "");
+                allFlags.push(kebabToCamel(flagName) + "?: string;");
+
+            }
+            else {
+
+                // Boolean
+                const splitted = flags.split(" ");
+                let flagName;
+                flagName = splitted[splitted.length - 1].replace("--", "");
+                allFlags.push(kebabToCamel(flagName) + "?: boolean;");
+
+            }
+
+        }
+
+        const template = Handlebars.compile(optionsTemplateFile.toString());
+
+        const formattedCode = prettier.format(template({ allFlags }), {
+            parser: "babel-ts"
+        });
+        const fileName = info.command.split(" ")[0];
+        fs.writeFileSync(
+            path.join("src", "actions", fileName + "-options.ts"),
+            formattedCode,
+            { encoding: "utf8" }
+        );
+
+    }
+
+};
+
+const generateFiles = () => {
+
+    // Find Missing Action Files
+    const filesInDir = fs
+        .readdirSync(path.join("src", "actions"))
+        .map((i) => i.replace(".ts", ""));
+
+    const yamlText = fs.readFileSync(path.join("src", "cmds.yaml"), "utf8");
+    const parsedYaml = YAML.parse(yamlText);
+    const allCommandsInCmdFile = parsedYaml.commands.map(
+        (i) => i.command.split(" ")[0]
     );
+    processCommand(allCommandsInCmdFile);
+    processOptions(parsedYaml.commands);
 
-}
+};
+
+generateFiles();
