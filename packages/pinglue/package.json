@@ -22,7 +22,7 @@
     "clean-ts": "rm -rf lib; rm tsconfig.tsbuildinfo",
     "clean-node": "rm -rf node_modules",
     "clean-all": "npm run clean-extras; npm run clean-ts; npm run clean-node",
-    "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
+    "test": "npx mocha --loader=@pinglue/utils/testing/replace-module --no-warnings",
     "lint": "./node_modules/.bin/eslint 'src/**/*.ts'"
   },
   "dependencies": {
