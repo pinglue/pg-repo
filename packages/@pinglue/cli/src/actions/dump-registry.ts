@@ -58,8 +58,8 @@ export default function(settings: CliActionSettings) {
                 print.error("Empty data field in the registery's response", {ans});
                 return;
 
-            }          
-            
+            }
+
             print.header("\n\nRegistry records dump:\n");
             print.header("=".repeat(80) + "\n\n");
 
@@ -73,7 +73,7 @@ export default function(settings: CliActionSettings) {
                 print(style.obj(record));
                 print("\n\n");
 
-            }            
+            }
 
         }
         catch(error) {

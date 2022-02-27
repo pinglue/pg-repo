@@ -1,9 +1,7 @@
 
-// TODO: to be replaced by the copy in pinglue/utils
-
 import type {
     Object
-} from "@pinglue/utils";
+} from "./types";
 
 /**
  * This function assumes the jss is a VALID json schema and just calculates the default value object

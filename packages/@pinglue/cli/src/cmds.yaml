@@ -10,6 +10,8 @@ commands:
         description: "Specifying the profiles for the hub (defaults to dev)"
       - flags: "-f, --filter <pattern>"
         description: "Filter the results based on the package name"
+      - flags: "--default-settings"
+        description: "Include packages' default settings"
 
   - command: "run [route-name]"
     description: "Run the given route (defaults to /)"
