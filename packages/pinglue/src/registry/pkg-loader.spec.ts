@@ -6,8 +6,6 @@ describe("pkg-loader", ()=>{
 
     it("should load correct data", () => {
 
-
-        
     });
 
 });

@@ -25,7 +25,7 @@ import type {
 import {
     _normalizeRoute,
     _getPkgPath
-} from "./utils.js";
+} from "./utils/helpers.js";
 
 import {
     Loader,

@@ -19,7 +19,7 @@ import {
 import type {
     PackageInfo,
     Routes
-} from "./index";
+} from "../project-loader";
 
 //===============================
 
@@ -304,7 +304,7 @@ export function _getRoutes(
     if (ans.size === 0) {
 
         ans.set(
-            ".", 
+            ".",
             {path: "./index.js"}
         );
 

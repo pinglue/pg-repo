@@ -23,9 +23,9 @@ import type {
     PackageRecord,
     RegistryWatchEvent,
     RegistryWatchEventName
-} from "../registry";
+} from "../registry/project-loader";
 
-import {Registry} from "../registry/index.js";
+import {Registry} from "../registry/project-loader.js";
 
 import {Hub} from "../hub/index.js";
 

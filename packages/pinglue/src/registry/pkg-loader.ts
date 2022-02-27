@@ -12,7 +12,7 @@ import type {
     PackageRecord,
     CustomSettings,
     PackageInfo
-} from "./index";
+} from "./project-loader";
 
 import {
     Loader,
@@ -28,7 +28,7 @@ import {
     _getImportPath,
     _validatePkgInfo,
     _getRoutes
-} from "./utils.js";
+} from "./utils/helpers.js";
 
 import {InfoLoader} from "./info-loader.js";
 import {ChannelsLoader} from "./channels-loader.js";
@@ -125,7 +125,7 @@ export class PkgLoader extends Loader {
 
         try {
 
-            record.routes = await _getRoutes(pkgJson);
+            record.routes = _getRoutes(pkgJson);
             this.print(this.style.success("Done!\n"));
 
         }

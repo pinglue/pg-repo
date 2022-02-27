@@ -30,9 +30,9 @@ export type {
     RouteInfo,
     RegistryWatchEvent,
     RegistryWatchEventName
-} from "./registry";
+} from "./registry/project-loader";
 
-export {Registry} from "./registry/index.js";
+export {Registry} from "./registry/project-loader.js";
 
 export type {
     FactorySettings,
