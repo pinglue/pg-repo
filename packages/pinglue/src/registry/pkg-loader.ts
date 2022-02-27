@@ -125,7 +125,7 @@ export class PkgLoader extends Loader {
 
         try {
 
-            record.routes = await _getRoutes(pkgPath, pkgJson);
+            record.routes = await _getRoutes(pkgJson);
             this.print(this.style.success("Done!\n"));
 
         }
