@@ -41,11 +41,6 @@ export default function (settings: CliActionSettings) {
       }
     }
 
-    if(!promise) {
-      print.error('Could not find settings definition in pg.yaml. To generate setting type, please set settings section in pg.yaml');
-      return;
-    }
-
     let settingsType: String;
     try {
       settingsType = await promise;      
