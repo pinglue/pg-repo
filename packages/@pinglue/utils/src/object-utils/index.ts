@@ -3,13 +3,12 @@ import type {Object} from "../types";
 
 import {Msg} from "../message.js";
 
-
 /**
  * Deep cloning anything
  * @param val
  * @returns
  */
-export function _clone<T>(val: T):T {
+export function _clone<T>(val: T): T {
 
     if (typeof val === "undefined") return;
 
@@ -34,7 +33,7 @@ export function _clone<T>(val: T):T {
  * @param val
  * @returns
  */
-export function _freeze<T>(val: T):T {
+export function _freeze<T>(val: T): T {
 
     if (
         typeof val === "undefined" ||
@@ -67,7 +66,7 @@ export function _freeze<T>(val: T):T {
  * @param val
  * @returns
  */
-export function _cloneFreeze<T>(val: T):T {
+export function _cloneFreeze<T>(val: T): T {
 
     if (
         typeof val === "undefined" ||
@@ -305,7 +304,6 @@ type MergeHelper = (
     target: Object,
     ...objs: MergableObj[]
 ) => Object;*/
-
 
 export const _merge =
     MultiArgFactory(

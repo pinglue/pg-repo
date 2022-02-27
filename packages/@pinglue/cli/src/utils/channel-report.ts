@@ -32,7 +32,6 @@ export function channelReport(
 
     }
 
-    
     if (settings.singleHandler)
         print(" | " + style.info("single-hdl"));
     if (settings.syncType === "async")
@@ -54,11 +53,13 @@ export function channelReport(
     print("\n\n");
 
     if (settings.proxy) {
+
         print(" " + style.warn("  PROXY"));
         if (typeof settings.proxy === "object")
             print.mute(` (to "${settings.proxy.channelName || "NA"}" of "${settings.proxy.hubId || "NA"}" hub)`);
 
         print("\n\n");
+
     }
 
     // controller

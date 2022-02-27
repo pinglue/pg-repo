@@ -1,0 +1,4 @@
+timeout: "0"
+watch-files:
+  - "lib/**/*.js"
+  

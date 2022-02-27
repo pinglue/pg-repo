@@ -42,7 +42,7 @@ export default function(settings: CliActionSettings) {
 
             const {hub} = await createApp(routeName, {
                 factory: {
-                    ...printersInfo, 
+                    ...printersInfo,
                     env: options.env || "local",
                     profiles: options.profiles || "dev"
                 },

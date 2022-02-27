@@ -5,10 +5,12 @@ import type {
     CliActionSettings
 } from "../cli-settings";
 
+import {filterMatch} from "../utils/filter-match.js";
+
 type Options = {
     env?: string;
-    profiles?: string | string[],
-    pkg?:string;
+    profiles?: string | string[];
+    filter?: string;
 
     import?: boolean;
     dataPath?: boolean;
@@ -27,7 +29,7 @@ export default function(settings: CliActionSettings) {
         route = route || "/";
 
         const registry = new Registry({
-            route,            
+            route,
             env:options.env || "local",
             profiles: options.profiles || "dev",
 
@@ -48,45 +50,39 @@ export default function(settings: CliActionSettings) {
         //let ans;
 
         try {
+
             const ans = await registry.load();
 
             if (!ans?.data) {
+
                 print.error("Empty data field in the registery's response", {ans});
                 return;
+
             }
 
-            if (options.pkg) {
-                const data = ans.data.get(options.pkg);
-                if (!data) {
-                    print(`No record found for the package "${options.pkg}"\n\n`);
-                    return;
-                }
+            print.header("\n\nRegistry records dump:\n");
+            print.header("=".repeat(80) + "\n\n");
 
-                print.header(`\n\nRegistry record dump for package "${options.pkg}":\n`);
-                print.header("=".repeat(80)+"\n\n");
-                print(style.obj(data));
+            for(const [pkgName, record] of ans.data) {
+
+                if (!filterMatch(pkgName, options.filter))
+                    continue;
+
+                print(style.warn(pkgName) + "\n");
+                print("-".repeat(80) + "\n");
+                print(style.obj(record));
+                print("\n\n");
+
             }
-            else {
-                print.header("\n\nRegistry records dump:\n");
-                print.header("=".repeat(80)+"\n\n");
-                for(const [pkgName, record] of ans.data) {
-                    print(style.warn(pkgName)+"\n");
-                    print("-".repeat(80)+"\n");
-                    print(style.obj(record));
-                    print("\n\n");
-                }
-            }
-          
+
         }
         catch(error) {
+
             print.error("Failed!");
             return;
+
         }
 
-        
-        
-
-        
-    }
+    };
 
 }
