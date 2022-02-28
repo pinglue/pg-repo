@@ -9,23 +9,26 @@ import prettier from "prettier";
 const ACTION_TEMPLATE = "action-template.hbs";
 const ACTION_OPTIONS_TEMPLATE = "action-options-template.hbs";
 
-const kebabToCamel = (str) =>
-    str
+function kebabToCamel(str) {
+
+    return str
         .toLowerCase()
         .replace(/([-_][a-z])/g, (group) =>
             group.toUpperCase().replace("-", "").replace("_", "")
         );
 
-const processCommand = (commands) => {
+}
+
+function processCommand(commands) {
 
     const actionTemplateFile = fs.readFileSync(
         path.join("scripts", ACTION_TEMPLATE),
         "utf8"
     );
 
-    for (const fileName of commands) {
+    const template = Handlebars.compile(actionTemplateFile.toString());
 
-        const template = Handlebars.compile(actionTemplateFile.toString());
+    for (const fileName of commands) {
 
         const formattedCode = prettier.format(template({ fileName }), {
             parser: "babel-ts"
@@ -43,21 +46,22 @@ const processCommand = (commands) => {
         catch (error) {
 
             // -17 is error code for duplicate files
-            if (error?.errno != -17)
-                console.log(error);
+            if (error?.errno != -17) console.log(error);
 
         }
 
     }
 
-};
+}
 
-const processOptions = (commands) => {
+function processOptions(commands) {
 
     const optionsTemplateFile = fs.readFileSync(
         path.join("scripts", ACTION_OPTIONS_TEMPLATE),
         "utf8"
     );
+
+    const template = Handlebars.compile(optionsTemplateFile.toString());
 
     for (const info of commands) {
 
@@ -91,8 +95,6 @@ const processOptions = (commands) => {
 
         }
 
-        const template = Handlebars.compile(optionsTemplateFile.toString());
-
         const formattedCode = prettier.format(template({ allFlags }), {
             parser: "babel-ts"
         });
@@ -105,14 +107,9 @@ const processOptions = (commands) => {
 
     }
 
-};
+}
 
-const generateFiles = () => {
-
-    // Find Missing Action Files
-    const filesInDir = fs
-        .readdirSync(path.join("src", "actions"))
-        .map((i) => i.replace(".ts", ""));
+function generateFiles() {
 
     const yamlText = fs.readFileSync(path.join("src", "cmds.yaml"), "utf8");
     const parsedYaml = YAML.parse(yamlText);
@@ -122,6 +119,6 @@ const generateFiles = () => {
     processCommand(allCommandsInCmdFile);
     processOptions(parsedYaml.commands);
 
-};
+}
 
 generateFiles();
