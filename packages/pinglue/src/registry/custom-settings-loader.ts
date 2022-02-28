@@ -39,7 +39,7 @@ interface Output extends LoaderOutput {
 
 export class CustomSettingsLoader extends Loader {
 
-    protected settings: Settings;
+    declare protected settings: Settings;
 
     #envPath: string;
     #envWatcher: chokidar.FSWatcher;

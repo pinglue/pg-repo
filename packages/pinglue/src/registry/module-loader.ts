@@ -40,7 +40,7 @@ interface Output extends LoaderOutput {
 
 export class ModuleLoader extends Loader {
 
-    protected settings: Settings;
+    declare protected settings: Settings;
 
     #depsWatcher: chokidar.FSWatcher;
 

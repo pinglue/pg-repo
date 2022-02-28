@@ -166,7 +166,7 @@ export class Registry extends Loader {
         "change-settings"
     ];
 
-    protected settings: RegistrySettings;
+    declare protected settings: RegistrySettings;
 
     #route: string;
     #state = STATE.init;
@@ -191,7 +191,7 @@ export class Registry extends Loader {
         }));
 
         // route provided
-        if (typeof this.settings.route === "string") {
+        if (typeof this.settings?.route === "string") {
 
             this.#route = _normalizeRoute(
                 this.settings.route

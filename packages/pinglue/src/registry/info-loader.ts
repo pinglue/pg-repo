@@ -42,7 +42,7 @@ interface Output extends LoaderOutput {
 
 export class InfoLoader extends Loader {
 
-    protected settings: Settings;
+    declare protected settings: Settings;
 
     #pgPath: string;
     #pgWatcher: chokidar.FSWatcher;
