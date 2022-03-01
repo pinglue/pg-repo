@@ -37,7 +37,7 @@ export default function (settings: CliActionSettings) {
     let promise: Promise<String>;
     for (let [key, val] of Object.entries(json)) {
       if (key === 'settings') {
-        promise = jsonToTypeScript.compile(val,'Settings', {bannerComment: '/* generated automatically by pinglue-cli */'});
+        promise = jsonToTypeScript.compile(val,'Settings', {bannerComment: null});
       }
     }
 
@@ -53,8 +53,7 @@ export default function (settings: CliActionSettings) {
 
     const destPath = path.join('./src', 'settings.ts');
     try {
-      // fs.ensureDir(dirToWrite);
-      fs.writeFile(destPath, settingsType);  
+      fs.writeFileSync(destPath, settingsType);  
     } catch (error) {
       print.error('Could not export type definitions in settings.ts file.', error);
       return;

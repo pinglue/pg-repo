@@ -76,7 +76,7 @@ export default function(settings: CliActionSettings) {
                 promises.push(jsonToTypeScript.compile(
                     info[type],
                     getVariableName(channelName, type),
-                    {bannerComment: '/* generated automatically by pinglue-cli */'}
+                    {bannerComment: null}
                 ));
 
             }
