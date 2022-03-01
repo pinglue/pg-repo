@@ -120,9 +120,7 @@ describe("build-settings-type", () => {
     await setup({
       fakeFiles: {
         "pg.yaml": PG_YAML,
-        "src": {
-          "settings.ts": ""
-        }
+        "src": {}
       }
     });
 
