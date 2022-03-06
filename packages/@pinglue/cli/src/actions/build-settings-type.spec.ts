@@ -61,8 +61,7 @@ envVars:
 `;
 
 const SETTINGS_TYPE =
-`
-export interface Settings {
+`export interface Settings {
   dbName?: string;
   host?: string;
   port?: number;
@@ -131,12 +130,7 @@ describe("build-settings-type", () => {
 
     // last message was a success
     expect(fakeConsole.last().type).to.equal("success");
-
-    const regex = new RegExp(/\s+/g);
-    let returnValue = fakeFs.readFileSync("src/settings.ts", "utf8").toString().trim().replace(regex, ' ');
-    let expectedValue = SETTINGS_TYPE.trim().replace(regex, ' ');
-
-    expect(returnValue).to.equal(expectedValue);
+    expect(fakeFs.readFileSync("src/settings.ts", "utf8").toString()).to.equal(SETTINGS_TYPE);
 
   });
 
