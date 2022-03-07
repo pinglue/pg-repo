@@ -12,7 +12,7 @@ import {
 
 import {
     _readYaml
-} from "./utils.js";
+} from "./utils/helpers.js";
 
 import {
     Loader,
@@ -24,7 +24,7 @@ import type {
     RegistrySettings,
     CustomSettings,
     PackageInfo
-} from "./index";
+} from "./project-loader";
 
 import {
     defaultValue

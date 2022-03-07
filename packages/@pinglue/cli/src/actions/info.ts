@@ -12,14 +12,21 @@ import type {
     Styler
 } from "@pinglue/utils";
 
+import {
+    defaultValue
+} from "@pinglue/utils";
+
 import type {
     CliActionSettings
 } from "../cli-settings";
 
+import {filterMatch} from "../utils/filter-match.js";
+
 type Options = {
     env?: string;
     profiles?: string | string[];
-    pkg?: string;
+    filter?: string;
+    defaultSettings?: boolean;
 };
 
 type InfoSegment = {
@@ -47,10 +54,7 @@ export default function(settings: CliActionSettings) {
             info = await getGeneralInfo(
                 routeName,
                 options,
-                style, print,
-                {
-                    noRoutes: typeof routeName !== "undefined"
-                }
+                style, print
             );
 
         }
@@ -110,8 +114,7 @@ export default function(settings: CliActionSettings) {
 async function getGeneralInfo(
     routeName: string,
     cliOptions: Options,
-    style: Styler, print: Printer,
-    options: {noRoutes?: boolean}
+    style: Styler, print: Printer
 ): Promise<Map<string, PkgInfo>> {
 
     const settings: RegistrySettings = {
@@ -122,27 +125,20 @@ async function getGeneralInfo(
         print
     };
 
+    const options = {
+        noRoutes: typeof routeName !== "undefined",
+        defaultSettings: cliOptions.defaultSettings
+    };
+
     const reg = new Registry(settings);
     const {data: packages} = await reg.load();
 
     const ans = new Map<string, PkgInfo>();
 
-    if (cliOptions.pkg) {
-
-        if (packages.has(cliOptions.pkg)) {
-
-            ans.set(
-                cliOptions.pkg,
-                _getPkgInfo(packages.get(cliOptions.pkg), style, options)
-            );
-
-        }
-
-        return ans;
-
-    }
-
     for(const [pkgName, record] of packages) {
+
+        if (!filterMatch(pkgName, cliOptions.filter))
+            continue;
 
         ans.set(
             pkgName,
@@ -204,6 +200,17 @@ function _getPkgInfo(
         infos.push({
             title: "Settings:\n",
             content: style.obj(record.settings)
+        });
+
+    }
+
+    if (options.defaultSettings) {
+
+        infos.push({
+            title: "Default settings:\n",
+            content: style.obj(
+                defaultValue(record.info.settings || {}) as Object
+            )
         });
 
     }

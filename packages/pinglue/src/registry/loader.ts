@@ -17,11 +17,11 @@ import type {
     RegistryWatchEventType,
     RegistryWatchEvent,
     RegistryWatchCallback
-} from "./index";
+} from "./project-loader";
 
 import {
     registryWatchEventNames
-} from "./index.js";
+} from "./project-loader.js";
 
 //======================================
 

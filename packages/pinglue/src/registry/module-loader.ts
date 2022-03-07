@@ -15,7 +15,7 @@ import {
 
 import {
     _readYaml
-} from "./utils.js";
+} from "./utils/helpers.js";
 
 import {
     Loader,
@@ -25,7 +25,7 @@ import {
 
 import type {
     RegistrySettings
-} from "./index";
+} from "./project-loader";
 
 //======================================
 

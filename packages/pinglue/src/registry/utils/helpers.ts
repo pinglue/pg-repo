@@ -19,7 +19,7 @@ import {
 import type {
     PackageInfo,
     Routes
-} from "./index";
+} from "../project-loader";
 
 //===============================
 
@@ -261,12 +261,16 @@ export function _validatePkgInfo(
  * @returns
  * @throws
  */
-export async function _getRoutes(
-    pkgPath: string,
+export function _getRoutes(
     pkgJson: Object
-): Promise<Routes> {
+): Routes {
 
     const ans = new Map();
+
+    if (
+        !pkgJson ||
+        typeof pkgJson !== "object"
+    )   return ans;
 
     // adding main field info
     if (pkgJson.main)
@@ -299,15 +303,10 @@ export async function _getRoutes(
     // default to index.js
     if (ans.size === 0) {
 
-        const defaultPath = path.join(
-            pkgPath,
-            "index.js"
+        ans.set(
+            ".",
+            {path: "./index.js"}
         );
-
-        if (!await fs.pathExists(defaultPath))
-            throw Msg.error("err-no-route-info-found");
-
-        ans.set(".", defaultPath);
 
     }
 

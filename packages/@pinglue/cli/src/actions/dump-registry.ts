@@ -5,10 +5,12 @@ import type {
     CliActionSettings
 } from "../cli-settings";
 
+import {filterMatch} from "../utils/filter-match.js";
+
 type Options = {
     env?: string;
     profiles?: string | string[];
-    pkg?: string;
+    filter?: string;
 
     import?: boolean;
     dataPath?: boolean;
@@ -58,35 +60,18 @@ export default function(settings: CliActionSettings) {
 
             }
 
-            if (options.pkg) {
+            print.header("\n\nRegistry records dump:\n");
+            print.header("=".repeat(80) + "\n\n");
 
-                const data = ans.data.get(options.pkg);
+            for(const [pkgName, record] of ans.data) {
 
-                if (!data) {
+                if (!filterMatch(pkgName, options.filter))
+                    continue;
 
-                    print(`No record found for the package "${options.pkg}"\n\n`);
-                    return;
-
-                }
-
-                print.header(`\n\nRegistry record dump for package "${options.pkg}":\n`);
-                print.header("=".repeat(80) + "\n\n");
-                print(style.obj(data));
-
-            }
-            else {
-
-                print.header("\n\nRegistry records dump:\n");
-                print.header("=".repeat(80) + "\n\n");
-
-                for(const [pkgName, record] of ans.data) {
-
-                    print(style.warn(pkgName) + "\n");
-                    print("-".repeat(80) + "\n");
-                    print(style.obj(record));
-                    print("\n\n");
-
-                }
+                print(style.warn(pkgName) + "\n");
+                print("-".repeat(80) + "\n");
+                print(style.obj(record));
+                print("\n\n");
 
             }
 
