@@ -94,3 +94,9 @@ commands:
         description: "Registry option"
       - flags: "--no-settings"
         description: "Registry option"
+  
+  - command: "build-channels-types [route-name]"
+    description: "Build channels types at desired route"
+
+  - command: "build-settings-type"
+    description: "Build settings type from pg.yaml"
