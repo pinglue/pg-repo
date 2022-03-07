@@ -7,12 +7,6 @@ const PG_YAML =
   `
 id: mongodb-pl
 
-envVars:
-  - host
-  - port
-  - username
-  - password
-
 settings:
 
   type: object
@@ -53,11 +47,6 @@ const PG_YAML_WO_SETTINGS =
 `
 id: mongodb-pl
 
-envVars:
-  - host
-  - port
-  - username
-  - password
 `;
 
 const SETTINGS_TYPE =
@@ -124,10 +113,7 @@ describe("build-settings-type", () => {
     });
 
     await action('', {});
-
-    // see the file system
-    // console.log(fakeVolume.toJSON());
-
+   
     // last message was a success
     expect(fakeConsole.last().type).to.equal("success");
     expect(fakeFs.readFileSync("src/settings.ts", "utf8").toString()).to.equal(SETTINGS_TYPE);
@@ -144,9 +130,6 @@ describe("build-settings-type", () => {
     });
 
     await action('', {});
-
-    // see the file system
-    // console.log(fakeVolume.toJSON());
 
     // last message was a success
     expect(fakeConsole.last().type).to.equal("error");
