@@ -5,8 +5,8 @@ import {
 } from "@pinglue/utils/testing/replace-module";
 import { fakeFs, fakeVolume } from "@pinglue/utils/testing/fake-fs";
 
-const COMMANDS_YAML = `
-description: "Test file to check build action and option files"
+const COMMANDS_YAML =
+`description: "Test file to check build action and option files"
 
 commands:
   - command: "test [route-name]"
@@ -22,8 +22,8 @@ commands:
         description: "Boolean one flag"
 `;
 
-const TEST_FILE = `
-import type { CliActionSettings } from "../cli-settings";
+const TEST_FILE =
+`import type { CliActionSettings } from "../cli-settings";
 
 import { Options } from "./test-options";
 
@@ -36,8 +36,8 @@ export default function (settings: CliActionSettings) {
 }
 `;
 
-const TEST_OPTION = `
-export interface Options {
+const TEST_OPTION =
+`export interface Options {
   optional: string;
   mandatory?: string;
   boolean?: boolean;
@@ -86,7 +86,7 @@ describe("build-actions", () => {
         fakeVolume.fromNestedJSON(fakeFiles);
 
         // module under test
-        MUT = await import("../../scripts/build-actions.js");
+        MUT = await import("./build-actions.js");
 
         // init cli action
         action = MUT.default;
@@ -118,11 +118,14 @@ describe("build-actions", () => {
 
         await action();
 
-        expect(TEST_FILE).to.contain(
-            fakeFs.readFileSync("./src/actions/test.ts", "utf8")
+        // expect(TEST_FILE).to.contain(
+        //     fakeFs.readFileSync("./src/actions/test.ts", "utf8")
+        // );
+        expect(fakeFs.readFileSync("./src/actions/test.ts", "utf8").toLocaleString()).to.contain(
+            TEST_FILE
         );
-        expect(TEST_OPTION).to.contain(
-            fakeFs.readFileSync("./src/actions/test-options.ts", "utf8")
+        expect(fakeFs.readFileSync("./src/actions/test-options.ts", "utf8").toLocaleString()).to.contain(
+            TEST_OPTION
         );
 
     });

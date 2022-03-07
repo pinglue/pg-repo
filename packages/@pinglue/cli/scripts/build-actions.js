@@ -109,7 +109,7 @@ function processOptions(commands) {
 
 }
 
-function generateFiles() {
+export default function generateFiles() {
 
     const yamlText = fs.readFileSync(path.join("src", "cmds.yaml"), "utf8");
     const parsedYaml = YAML.parse(yamlText);
