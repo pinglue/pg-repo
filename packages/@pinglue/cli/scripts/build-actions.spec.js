@@ -117,10 +117,7 @@ describe("build-actions", () => {
         });
 
         await action();
-
-        // expect(TEST_FILE).to.contain(
-        //     fakeFs.readFileSync("./src/actions/test.ts", "utf8")
-        // );
+        
         expect(fakeFs.readFileSync("./src/actions/test.ts", "utf8").toLocaleString()).to.contain(
             TEST_FILE
         );
