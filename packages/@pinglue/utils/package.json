@@ -27,6 +27,7 @@
     "lint": "node_modules/.bin/eslint 'src/**/*.ts'"
   },
   "dependencies": {
+    "chokidar": "^3.5.3",
     "memfs": "^3.4.1",
     "quibble": "^0.6.8"
   },

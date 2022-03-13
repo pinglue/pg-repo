@@ -1,5 +1,5 @@
 
-import type {Object} from "./types";
+import type {Object} from "../types";
 import * as nodePath from "path";
 
 import * as nodeFs from "fs";
@@ -21,9 +21,13 @@ export const SYNC_FUNCS = [
     "futimesSync", "readSync", "readvSync", "writeSync", "writevSync"
 ];
 
+// TODO: define type for it!
 export type FsModule = Object;
 
-export function fsFactory(fsModule: Object = nodeFs, fsPromisesModule: Object = nodeFsPromises): FsModule {
+export function fsFactory(
+    fsModule: Object = nodeFs, 
+    fsPromisesModule: Object = nodeFsPromises
+): FsModule {
 
     const fs: Object = {};
 

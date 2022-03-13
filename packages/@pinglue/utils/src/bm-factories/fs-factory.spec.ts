@@ -5,7 +5,7 @@ import path from "path";
 import {ASYNC_FUNCS, SYNC_FUNCS, fsFactory} from "./fs-factory.js";
 import {fs as fakeFs, vol as fakeVol} from "memfs";
 
-describe("fs-extra-factory util", () => {
+describe("fs factory utils", () => {
 
     process.chdir("/");
 
