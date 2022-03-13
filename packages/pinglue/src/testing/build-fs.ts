@@ -55,7 +55,7 @@ export function buildPackageFs(
 
         }, {}
     );
-    pkgJson.type = "module"; 
+    pkgJson["type"] = "module";
 
     const generatedFiles = {
         "package.json": JSON.stringify(pkgJson)
@@ -170,4 +170,107 @@ export function buildProjectFs({
 
     return ans;
 
+}
+
+/* fake package suits
+============================== */
+
+export const GENERIC_PG_YAML1 = pkgId => 
+`
+id: ${pkgId}
+type: plugin
+settings:
+  type: object
+  properties:
+    a:
+      type: number
+      default: 2
+    b:
+      type: string
+`;
+
+/**
+ * A basic package suit
+ * @param param0 
+ * @returns 
+ */
+export function PKG_SUIT1({
+    offset = 0 as number
+}={}): TestPackageInfo[] {
+
+    return [
+
+        // empty package
+        {
+            name: `pkg${offset}`
+        },
+
+        // minimal: only pg.yaml
+        {
+            name: `pkg${offset+1}`,
+            pgYaml: GENERIC_PG_YAML1(`pkg${offset+1}`)
+        },
+
+        // regular package with localSettings
+        {
+            name: `pkg${offset+2}`,
+            version: "1.0.0",
+            main: "index.js",
+            exports: {
+                "./frontend": "./lib/frontend/index.js"
+            },
+            pgYaml: GENERIC_PG_YAML1(`pkg${offset+2}`),
+            localSettings: "a: 2\nb: value"
+        },
+
+        // regular scoped package with localSettings
+        {
+            name: `@scope/pkg${offset+3}`,
+            version: "1.0.0",
+            main: "index.js",
+            exports: {
+                "./frontend": "./lib/frontend/index.js"
+            },
+            pgYaml: GENERIC_PG_YAML1(`pkg${offset+3}`),
+            localSettings: "a: 2\nb: value"
+        },
+
+        // regular package with localSettings and env/profiles
+        {
+            name: `pkg${offset+4}`,
+            version: "1.0.0",
+            main: "index.js",
+            exports: {
+                "./frontend": "./lib/frontend/index.js"
+            },
+            pgYaml: GENERIC_PG_YAML1(`pkg${offset+4}`),
+            localSettings: "a: 2\nb: value",
+            envSettings: {
+                local: "a: 3"
+            },
+            profileSettings: {
+                dev: "b: value2"
+            }
+        },
+
+        // regular scoped package with localSettings and env/profiles
+        {
+            name: `@scope/pkg${offset+5}`,
+            version: "1.0.0",
+            main: "index.js",
+            exports: {
+                "./frontend": "./lib/frontend/index.js"
+            },
+            pgYaml: GENERIC_PG_YAML1(`pkg${offset+5}`),
+            localSettings: "a: 2\nb: value",
+            envSettings: {
+                local: "a: 3",
+                local2: "a: 4"
+            },
+            profileSettings: {
+                dev: "b: value2",
+                prod: "b: value3"
+            }
+        }
+    ];
 }

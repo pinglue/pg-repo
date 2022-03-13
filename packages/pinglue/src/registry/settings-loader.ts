@@ -45,7 +45,7 @@ interface Settings extends LoaderSettings {
  */
 export class SettingsLoader extends Loader {
 
-    protected settings: Settings;
+    declare protected settings: Settings;
 
     #defaultSettings: Object = {};
     #localSettings: Object = {};

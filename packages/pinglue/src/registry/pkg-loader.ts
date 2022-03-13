@@ -50,7 +50,7 @@ interface Output extends LoaderOutput {
 
 export class PkgLoader extends Loader {
 
-    protected settings: Settings;
+    declare protected settings: Settings;
 
     #infoLoader: InfoLoader;
     #channelsLoader: ChannelsLoader;

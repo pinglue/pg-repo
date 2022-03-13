@@ -38,7 +38,7 @@ interface Output extends LoaderOutput {
 
 export class ChannelsLoader extends Loader {
 
-    protected settings: Settings;
+    declare protected settings: Settings;
 
     #filePath: string;
     #fileWatcher: chokidar.FSWatcher;
