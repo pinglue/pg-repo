@@ -46,7 +46,7 @@ export function buildPackageFs(
     if (!packageInfo.name)
         throw new Error("Package needs name: " + JSON.stringify(packageInfo));
 
-    const pkgJson = ["name", "version", "main", "exports"].reduce(
+    const pkgJson: Object = ["name", "version", "main", "exports"].reduce(
         (acc, field) => {
 
             if (packageInfo[field])

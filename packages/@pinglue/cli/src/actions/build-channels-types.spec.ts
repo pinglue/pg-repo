@@ -31,16 +31,14 @@ const REGISTERS_YAML1 =
 `;
 
 const CHANNELS_TYPES1 =
-`
-export interface GetMongodbCollectionParams {
-    name: string;
-    exact?: boolean;
+`export interface GetMongodbCollectionParams {
+  name: string;
+  exact?: boolean;
 }
 
 export interface GetMongodbCollectionReturn {
-    [k: string]: unknown;
+  [k: string]: unknown;
 }
-
 `;
 
 describe("build-channels-types", () => {
