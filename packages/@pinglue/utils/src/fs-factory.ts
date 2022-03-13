@@ -21,7 +21,9 @@ export const SYNC_FUNCS = [
     "futimesSync", "readSync", "readvSync", "writeSync", "writevSync"
 ];
 
-export function fsFactory(fsModule: Object = nodeFs, fsPromisesModule: Object = nodeFsPromises): Object {
+export type FsModule = Object;
+
+export function fsFactory(fsModule: Object = nodeFs, fsPromisesModule: Object = nodeFsPromises): FsModule {
 
     const fs: Object = {};
 
