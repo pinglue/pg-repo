@@ -29,7 +29,8 @@
   "dependencies": {
     "chokidar": "^3.5.3",
     "memfs": "^3.4.1",
-    "quibble": "^0.6.8"
+    "quibble": "^0.6.8",
+    "yaml": "^1.10.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
