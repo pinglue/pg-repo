@@ -40,8 +40,8 @@ export function _normalizeRoute(str: string): string {
 
 }
 
+// TODO: Moved to utils
 /**
- *
  * @param filePath
  * @returns json of the yaml file
  * @throws if file not found or yaml format is wrong (data format: {filePath, error}) - error code:

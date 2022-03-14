@@ -65,6 +65,7 @@ export interface RegistrySettings extends LoaderSettings{
     noSettings?: boolean;
 };
 
+// TODO: types moved begin
 export type RouteInfo = {
     path: string;
     settings?: Object;
@@ -102,6 +103,12 @@ export type ProjectSettings = {
     dataPath?: string;
 };
 
+// general structure of env and profile files data
+export type CustomSettings = {
+    [pkgName: string]: Object;
+};
+// types moved end
+
 export type PackageRecord = {
     info?: PackageInfo;
     settings?: PgModuleSettings;
@@ -112,11 +119,6 @@ export type PackageRecord = {
     routes?: Routes;
     loadError?: Message;
     channelsLoadError?: Message;
-};
-
-// general structure of env and profile files data
-export type CustomSettings = {
-    [pkgName: string]: Object;
 };
 
 export type RegistryWatchEventType =
