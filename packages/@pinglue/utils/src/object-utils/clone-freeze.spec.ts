@@ -1,7 +1,8 @@
 
-import {_cloneFreeze} from "../lib/object-utils/index.js";
+import {expect} from "chai";
+import {_cloneFreeze} from "./index.js";
 
-test("Test 1", () => {
+it("Test 1", () => {
 
     const obj = {
         admin: false,
@@ -18,28 +19,28 @@ test("Test 1", () => {
     const ans = _cloneFreeze(obj);
 
     // clone
-    expect(ans).toEqual(obj);
+    expect(ans).to.equal(obj);
 
     // deep clone
-    expect(ans).not.toBe(obj);
-    expect(ans.author).not.toBe(obj.author);
-    expect(ans.arrField).not.toBe(obj.arrField);
-    expect(ans.config1.a).not.toBe(obj.config1.a);
+    expect(ans).not.to.equal(obj);
+    expect(ans.author).not.to.equal(obj.author);
+    expect(ans.arrField).not.to.equal(obj.arrField);
+    expect(ans.config1.a).not.to.equal(obj.config1.a);
 
     // frozen
     expect(() => {
         ans.admin = false;
-    }).toThrow();
+    }).throw();
 
     expect(() => {
         ans.admin = true;
-    }).toThrow();
+    }).throw();
 
     // no effect
     obj.author.username = "new-name";
-    expect(ans.author.username).toBe("joesmith");
+    expect(ans.author.username).to.be("joesmith");
     obj.arrField.push("ggg");
-    expect(ans.arrField.length).toBe(4);
+    expect(ans.arrField.length).to.equal(4);
 
     /*try {
         ans.config1.a.t = 2;
@@ -51,14 +52,14 @@ test("Test 1", () => {
     // deep frozen
     expect(() => {
         ans.config1.a.t = 2;
-    }).toThrow(/(read only)|(not extensible)/);
+    }).throw(/(read only)|(not extensible)/);
     expect(() => {
         ans.author.username = "shalgham";
-    }).toThrow(/(read only)|(not extensible)/);
+    }).throw(/(read only)|(not extensible)/);
     expect(() => {
         ans.arrField.push(34);
-    }).toThrow(/(read only)|(not extensible)/);
+    }).throw(/(read only)|(not extensible)/);
     expect(() => {
         ans.arrField.splice(1,1, "hom");
-    }).toThrow(/(read only)|(not extensible)/);    
+    }).throw(/(read only)|(not extensible)/);    
 });
