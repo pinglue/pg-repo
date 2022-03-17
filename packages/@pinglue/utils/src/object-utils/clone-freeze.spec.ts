@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { _cloneFreeze } from "./index.js";
 
-it("Test 1", () => {
+it("Test cloneFreeze function", () => {
 
     const obj = {
         admin: false,
