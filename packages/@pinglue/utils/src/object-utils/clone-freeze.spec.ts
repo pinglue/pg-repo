@@ -1,25 +1,24 @@
-
-import {expect} from "chai";
-import {_cloneFreeze} from "./index.js";
+import { expect } from "chai";
+import { _cloneFreeze } from "./index.js";
 
 it("Test 1", () => {
 
     const obj = {
         admin: false,
-        config1: {a: {t:1}},
+        config1: { a: { t: 1 } },
         config2: null,
         config3: undefined,
-        arrField: [1,2,"hey1", true],
+        arrField: [1, 2, "hey1", true],
         author: {
-            name: { last: 'Smith' },
-            username: 'joesmith'
+            name: { last: "Smith" },
+            username: "joesmith"
         }
     };
 
     const ans = _cloneFreeze(obj);
 
     // clone
-    expect(ans).to.equal(obj);
+    expect(ans).to.deep.equal(obj);
 
     // deep clone
     expect(ans).not.to.equal(obj);
@@ -29,16 +28,20 @@ it("Test 1", () => {
 
     // frozen
     expect(() => {
+
         ans.admin = false;
+
     }).throw();
 
     expect(() => {
+
         ans.admin = true;
+
     }).throw();
 
     // no effect
     obj.author.username = "new-name";
-    expect(ans.author.username).to.be("joesmith");
+    expect(ans.author.username).to.equal("joesmith");
     obj.arrField.push("ggg");
     expect(ans.arrField.length).to.equal(4);
 
@@ -51,15 +54,24 @@ it("Test 1", () => {
 
     // deep frozen
     expect(() => {
+
         ans.config1.a.t = 2;
+
     }).throw(/(read only)|(not extensible)/);
     expect(() => {
+
         ans.author.username = "shalgham";
+
     }).throw(/(read only)|(not extensible)/);
     expect(() => {
+
         ans.arrField.push(34);
+
     }).throw(/(read only)|(not extensible)/);
     expect(() => {
-        ans.arrField.splice(1,1, "hom");
-    }).throw(/(read only)|(not extensible)/);    
+
+        ans.arrField.splice(1, 1, "hom");
+
+    }).throw(/(read only)|(not extensible)/);
+
 });
