@@ -24,10 +24,12 @@
     "clean-node": "rm -rf node_modules",
     "clean-all": "npm run clean-extras; npm run clean-ts; npm run clean-node",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
+    "test-mocha": "npx mocha --loader=@pinglue/utils/testing/replace-module --no-warnings",
     "lint": "node_modules/.bin/eslint 'src/**/*.ts'"
   },
   "dependencies": {
     "chokidar": "^3.5.3",
+    "fs-extra": "^10.0.1",
     "memfs": "^3.4.1",
     "quibble": "^0.6.8",
     "yaml": "^1.10.2"
