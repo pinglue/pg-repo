@@ -1,6 +1,6 @@
 import path from "path";
 import { FsModule } from "./fs-factory";
-import fs from 'fs-extra';
+import fs from 'fs';
 import { Msg } from "../message.js";
 
 export async function _findPkgPath(
@@ -8,65 +8,58 @@ export async function _findPkgPath(
   fsModule: FsModule = fs
 ): Promise<string> {
 
-  const rel = path.join(
-    // process.cwd(),
-    "node_modules",
-    pkgName || "."
-  ); 
-  
-  let exists = await fsModule.pathExists(rel);
-  if(!exists) {
+  // if last string of pkgName is '/', remove.
+  if(pkgName.match(/\/$/)) {
+    pkgName = pkgName.substring(0, pkgName.length-1);
+  }
+
+  const pathlist = (pkgName || '.').split('/');
+  const _pkgName = pathlist.pop();
+
+  // if first path is '..', cannot go above root. should throw error
+  if (pathlist[0] === '..') {
+    throw Msg.error(
+      "err-invalid-path", { pkgName }
+    )
+  }
+
+  // if pkgName is '.' || '..' || '', it cannot point any of package. should throw error
+  if (_pkgName.match(/^\.{1,2}$/) || _pkgName === '') {
+    throw Msg.error(
+      "err-invalid-pkgname", { pkgName }
+    );
+  }
+
+  // loop until finish checking all path.
+  // if path does not exist, go up.
+  let rel: string;
+  while (true) {
+    let _rel = path.join(pathlist.join('/'), 'node_modules', _pkgName);
+    let exists = await fsModule.pathExists(_rel);
+
+    if (exists) {
+      rel = _rel;
+      break;
+    }
+
+    if (pathlist.length == 0) {
+      break;
+    }
+    pathlist.pop();
+  }
+
+  if (!rel) {
     throw Msg.error(
       "err-path-not-found", { pkgName }
     );
   }
 
-  const stat = fsModule.statSync(rel);
-  if(stat.isFile()) {
+  const stat = await fsModule.stat(rel);
+  if (stat.isFile()) {
     throw Msg.error(
       "err-path-is-file", { pkgName }
     )
   }
 
   return rel;
-
-
-
-
-  // const res = await findUp(async dir => {
-  //   var result = await fsModule.readdir(dir);
-  //   console.log(result);
-  //   console.log(path.dirname(dir));
-  //   console.log('currentDir: ',dir);
-  //   console.log('currentPath: ',rel);
-  //   console.log(process.cwd());
-
-  //   const hasRel = await fsModule.pathExists(
-  //     path.join(dir, rel)
-  //   );
-
-  //   console.log('found?' , hasRel);
-  //   console.log(pkgName);
-  //   console.log(hasRel && (
-  //     pkgName ? path.join(dir, rel) : dir
-  //   ));
-
-  //   var stat = fsModule.statSync(rel);
-  //   console.log(stat.isFile(), stat.isDirectory());
-
-  //   return hasRel && (
-  //     pkgName ? path.join(dir, rel) : dir
-  //   );
-
-  // }, { type: "directory" })
-
-  // console.log('RES:' ,res);
-
-  // if (!res)
-  //   throw Msg.error(
-  //     "err-path-not-found", { pkgName }
-  //   );
-
-  // return res;
-
 }
