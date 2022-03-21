@@ -17,7 +17,8 @@ import {
 
 import {FsWatcher} from "@pinglue/utils/bm-factories";
 
-import {Subject} from "rxjs";
+import {Subject, pipe} from "rxjs";
+import {take} from "rxjs/operators"
 
 
 export enum LoadEventSourceType {
@@ -129,7 +130,7 @@ export interface DataSource {
 
 export interface FsDataSource extends DataSource {
     type: "fs";
-    fsWatcher: FsWatcher;
+    fsWatcher?: FsWatcher;
 }
 
 export interface SubLoaderDataSource extends DataSource {
@@ -154,22 +155,22 @@ export abstract class Loader {
     protected readonly sources = new Map<string, DataSourceInfo>();
 
     // main output
-    protected readonly load$ = new Subject<LoadEventWithData|LoadEventError>();
+    readonly load$ = new Subject<LoadEventWithData|LoadEventError>();
 
     constructor(
-        protected settings?: LoaderSettings
+        protected settings: LoaderSettings = {}
     ) {
         this.init();
     }
 
-    abstract init();
+    protected abstract init();
 
     /**
      * 
      * @param param0 
      * @throws if any error happen (in case of error will emit and error load event)
      */
-    abstract onDataChange({
+     protected  abstract onDataChange({
         source,
         dataChangeInfo 
     }: {
@@ -178,7 +179,7 @@ export abstract class Loader {
     }): LoadEventWithoutData;   
 
     // undefined means no data was calcultaed, so no emit
-    abstract reduce(): Object|null|undefined;
+    protected  abstract reduce(): Object|null|undefined;
 
     // helpers
 
@@ -220,31 +221,36 @@ export abstract class Loader {
 
         // handling data change for fs data source        
 
-        source.fsWatcher.on("all", (eventName, filePath)=>{
-            if (!this.sources.has(source.id)) return;
+        if (this.settings.watch && source.fsWatcher) {
+            source.fsWatcher.on("all", (eventName, filePath)=>{
+                if (!this.sources.has(source.id)) return;
+                try {
+                    const loadEvent = this.onDataChange({
+                        source, 
+                        dataChangeInfo: {type: LoadEventType.CHANGE, filePath}
+                    });
+                    this.#emitLoad(loadEvent);
+                }
+                catch(error) {
+                    this.#emitError(error);
+                }
+            });
+        }
+
+        // initial file load
+
+        setImmediate(()=>{
             try {
                 const loadEvent = this.onDataChange({
                     source, 
-                    dataChangeInfo: {type: LoadEventType.CHANGE, filePath}
+                    dataChangeInfo: {type: LoadEventType.INITIAL_LOAD}
                 });
                 this.#emitLoad(loadEvent);
             }
             catch(error) {
                 this.#emitError(error);
             }
-        });
-
-        // initial file load
-        try {
-            const loadEvent = this.onDataChange({
-                source, 
-                dataChangeInfo: {type: LoadEventType.INITIAL_LOAD}
-            });
-            this.#emitLoad(loadEvent);
-        }
-        catch(error) {
-            this.#emitError(error);
-        }
+        });        
     }
 
     addSubLoaderSource(source: SubLoaderDataSource) {
@@ -252,7 +258,12 @@ export abstract class Loader {
         if (this.sources.has(source.id)) return;
         this.sources.set(source.id, {source});
         
-        source.loader.load$.subscribe(async (loadEvent: LoadEventWithData|LoadEventError)=>{
+
+        const obs$ = this.settings.watch
+            ? source.loader.load$
+            : source.loader.load$.pipe(take(1));
+
+        obs$.subscribe(async (loadEvent: LoadEventWithData|LoadEventError)=>{
             if (!this.sources.has(source.id)) return;
 
             if (loadEvent.error) {
@@ -268,7 +279,7 @@ export abstract class Loader {
                     source,
                     dataChangeInfo: {
                         type: previousData?LoadEventType.CHANGE:LoadEventType.INITIAL_LOAD,
-                        filePath: loadEvent.dataChangeInfo.filePath
+                        ...loadEvent.dataChangeInfo.filePath?{filePath: loadEvent.dataChangeInfo.filePath}:{}
                     }
                 });
                 this.#emitLoad(loadEvent2);
