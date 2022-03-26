@@ -346,6 +346,7 @@ export abstract class Loader {
     }
     
     close(): void {
+        this.load$.complete();
         this.removeAllSources();
     }
 }
