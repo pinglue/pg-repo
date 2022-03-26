@@ -21,10 +21,11 @@ class FakeFsWatcher extends EventEmitter {
     constructor(index) {
         super();
         this.index = index;
+        this.close = sinon.spy();
     }
     emitChange(filePath = FILE_PATH) {
         this.emit("all", "change", `${filePath}/${this.index}`);
-    }
+    }    
 }
 
 let fsSources = [];
@@ -54,7 +55,12 @@ describe("loader", () => {
 
                 if (errorOnDataCHange) throw(errorOnDataCHange);
                 
-                this.setSourceData(source.id, FAKE_FS_DATA(source.meta.index))
+                // immitating reading from file system
+                if (source.id.startsWith("fake-fs")) {
+                    this.setSourceData(
+                        source.id, FAKE_FS_DATA(source.meta.index)
+                    );
+                }
         
                 return {
                     pkgName: PKG_NAME,
@@ -82,7 +88,7 @@ describe("loader", () => {
         .map((_,i)=>({
             id: "fake-sl"+i,
             type: "sub-loader",
-            loader: {load$: new Subject()},
+            loader: {load$: new Subject(), close: sinon.spy()},
             meta: {index:i}
         })); 
 
@@ -130,10 +136,10 @@ describe("loader", () => {
 
             subLoaderSources[0].loader.load$.next({
                 dataChangeInfo: {
-                    type: LoadEventType.INITIAL_LOAD,
-                    data: FAKE_SL_DATA(0),
-                    pkgName: "piunglue"
+                    type: LoadEventType.INITIAL_LOAD,                    
+                    pkgName: "pinglue"
                 },
+                data: FAKE_SL_DATA(0)
             });
 
             await setTimeout(5);
@@ -154,10 +160,10 @@ describe("loader", () => {
 
             subLoaderSources[0].loader.load$.next({
                 dataChangeInfo: {
-                    type: LoadEventType.INITIAL_LOAD,
-                    data: FAKE_SL_DATA(0),
-                    pkgName: "piunglue"
+                    type: LoadEventType.INITIAL_LOAD,                    
+                    pkgName: "pinglue"
                 },
+                data: FAKE_SL_DATA(0)
             });
 
             await setTimeout(5);
@@ -203,7 +209,7 @@ describe("loader", () => {
             });
         });
 
-        it("should make a single call with correct args onDataChange method when watch is on ans fs source has no watcher", async () => {        
+        it("should make a single call with correct args onDataChange method when watch is on and fs source has no watcher", async () => {        
             setup({watch: false});
 
             const watcher = fsSources[0].fsWatcher
@@ -225,6 +231,7 @@ describe("loader", () => {
         it("should make correct initial call and return to the reduce method when watch is on", async () => {
             setup();
             loader.addFsSource(fsSources[0]);
+            await setTimeout(10);
             fsSources[0].fsWatcher.emitChange();
     
             await setTimeout(10);
@@ -411,6 +418,160 @@ describe("loader", () => {
 
 
 
+    });
+
+    describe('testing the emitted values of the load$ for sub loader sources', () => {
+
+        it("should emit correct values when adding a single subloader source and it emits a change", async () => {
+            setup();
+
+            let c = 0;
+
+            loader.load$.subscribe(event => {
+
+                switch(++c) {
+                    case 1: {
+                        expect(event).to.deep.equal({
+                            data: [FAKE_SL_DATA(0)],
+                            dataChangeInfo: {
+                                type: LoadEventType.INITIAL_LOAD,
+                            },
+                            pkgName: PKG_NAME
+                        });
+                        break;
+                    }
+
+                    case 2: {
+                        expect(event).to.deep.equal({
+                            data: [FAKE_SL_DATA(1)],
+                            dataChangeInfo: {
+                                type: LoadEventType.CHANGE,
+                            },
+                            pkgName: PKG_NAME                            
+                        });
+                        break;
+                    }
+                }                
+            });
+
+            loader.addSubLoaderSource(subLoaderSources[0]);
+            subLoaderSources[0].loader.load$.next({
+                dataChangeInfo: {
+                    type: LoadEventType.INITIAL_LOAD,                    
+                },
+                data: FAKE_SL_DATA(0)
+            });
+            await setTimeout(5);
+
+            subLoaderSources[0].loader.load$.next({
+                dataChangeInfo: {
+                    type: LoadEventType.CHANGE,
+                },
+                data: FAKE_SL_DATA(1)
+            });
+            await setTimeout(10);
+
+
+            expect(c).to.equal(2);
+        });
+        
+    });
+
+    describe("testing removeSource", () => {
+
+        it("should remove correctly for sinle fs source", async () => {
+            setup();
+
+            let c = 0;
+
+            loader.load$.subscribe(event => {
+
+                switch(++c) {
+                    case 1: {
+                        expect(event).to.deep.equal({
+                            data: [FAKE_FS_DATA(0)],
+                            dataChangeInfo: {type: LoadEventType.INITIAL_LOAD},
+                            pkgName: PKG_NAME
+                        });
+                        break;
+                    }
+
+                    case 2: {
+                        expect(event).to.deep.equal({
+                            data: [FAKE_FS_DATA(0)],
+                            dataChangeInfo: {
+                                type: LoadEventType.CHANGE,
+                                filePath: `${FILE_PATH}/0`
+                            },
+                            pkgName: PKG_NAME                            
+                        });
+                        break;
+                    }
+                }                
+            });
+
+            loader.addFsSource(fsSources[0]);
+            await setTimeout(5);
+            fsSources[0].fsWatcher.emitChange();
+            await setTimeout(5);
+            loader.removeSource(fsSources[0].id);
+
+            // immitating a pending watch event
+            fsSources[0].fsWatcher.emitChange();
+            await setTimeout(5);
+
+            expect(c).to.equal(2);
+            expect(fsSources[0].fsWatcher.close.callCount).to.equal(1);
+            
+        });
+
+        it("should remove correctly for sinle sub loader source", async () => {
+            setup();
+
+            let c = 0;
+
+            loader.load$.subscribe(event => {
+
+                switch(++c) {
+                    case 1: {
+                        expect(event).to.deep.equal({
+                            data: [FAKE_SL_DATA(0)],
+                            dataChangeInfo: {
+                                type: LoadEventType.INITIAL_LOAD,
+                            },
+                            pkgName: PKG_NAME
+                        });
+                        break;
+                    }                   
+                }                
+            });
+
+            loader.addSubLoaderSource(subLoaderSources[0]);
+            subLoaderSources[0].loader.load$.next({
+                dataChangeInfo: {
+                    type: LoadEventType.INITIAL_LOAD,                    
+                },
+                data: FAKE_SL_DATA(0)
+            });
+            await setTimeout(5);
+
+            loader.removeSource(subLoaderSources[0].id);
+
+            await setTimeout(5);
+
+            subLoaderSources[0].loader.load$.next({
+                dataChangeInfo: {
+                    type: LoadEventType.CHANGE,
+                },
+                data: FAKE_SL_DATA(1)
+            });
+            await setTimeout(10);
+
+
+            expect(c).to.equal(1);
+            expect(subLoaderSources[0].loader.close.callCount).to.equal(1);
+        });
+        
     });
 
 

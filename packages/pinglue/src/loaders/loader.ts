@@ -17,7 +17,7 @@ import {
 
 import {FsWatcher} from "@pinglue/utils/bm-factories";
 
-import {Subject, pipe} from "rxjs";
+import {Subject, ReplaySubject, pipe} from "rxjs";
 import {take} from "rxjs/operators"
 
 
@@ -155,7 +155,7 @@ export abstract class Loader {
     protected readonly sources = new Map<string, DataSourceInfo>();
 
     // main output
-    readonly load$ = new Subject<LoadEventWithData|LoadEventError>();
+    readonly load$ = new ReplaySubject<LoadEventWithData|LoadEventError>(1);
 
     constructor(
         protected settings: LoaderSettings = {}
@@ -170,7 +170,7 @@ export abstract class Loader {
      * @param param0 
      * @throws if any error happen (in case of error will emit and error load event)
      */
-     protected  abstract onDataChange({
+     protected abstract onDataChange({
         source,
         dataChangeInfo 
     }: {
@@ -223,7 +223,14 @@ export abstract class Loader {
 
         if (this.settings.watch && source.fsWatcher) {
             source.fsWatcher.on("all", (eventName, filePath)=>{
+
+                // no action if loader is removed
                 if (!this.sources.has(source.id)) return;
+
+                // no action if file is not init-loaded yet
+                if (typeof this.getSourceData(source.id) === "undefined")
+                    return;
+
                 try {
                     const loadEvent = this.onDataChange({
                         source, 
@@ -263,7 +270,7 @@ export abstract class Loader {
             ? source.loader.load$
             : source.loader.load$.pipe(take(1));
 
-        obs$.subscribe(async (loadEvent: LoadEventWithData|LoadEventError)=>{
+        obs$.subscribe((loadEvent: LoadEventWithData|LoadEventError)=>{
             if (!this.sources.has(source.id)) return;
 
             if (loadEvent.error) {
@@ -315,15 +322,30 @@ export abstract class Loader {
     }
     
 
-    removeSource(source: FsDataSource|SubLoaderDataSource) {
+    removeSource(sourceId: string) {
         // not there?
-        if (!this.sources.has(source.id)) return;
+        if (!this.sources.has(sourceId)) return;
+
+        const source = this.sources.get(sourceId).source;
+
         this.sources.delete(source.id);
 
         // unsubscribe
         if (source.type === "sub-loader")
-            source.loader.load$.complete();
+            (source as SubLoaderDataSource).loader.close();
         else if (source.type === "fs") 
-            source.fsWatcher.close();
-    }   
+            (source as FsDataSource).fsWatcher.close();
+    }
+
+    removeAllSources(): void {
+
+        for(const info of this.sources.values()) {
+            this.removeSource(info.source.id);
+        }
+
+    }
+    
+    close(): void {
+        this.removeAllSources();
+    }
 }
