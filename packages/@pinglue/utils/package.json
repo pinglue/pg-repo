@@ -6,7 +6,8 @@
     ".": "./lib/index.js",
     "./testing/replace-module": "./lib/testing/replace-module.js",
     "./testing/fake-console": "./lib/testing/fake-console.js",
-    "./testing/fake-fs": "./lib/testing/fake-fs.js"
+    "./testing/fake-fs": "./lib/testing/fake-fs.js",
+    "./bm-factories": "./lib/bm-factories/index.js"
   },
   "type": "module",
   "files": [
