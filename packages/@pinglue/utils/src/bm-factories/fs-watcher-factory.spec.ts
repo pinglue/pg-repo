@@ -29,7 +29,7 @@ describe("fs watcher factory utils", () => {
         expect(watcher).not.to.be.instanceOf(chokidar.FSWatcher);
     });
 
-    describe("testing with memfs", () => {
+    describe.only("testing with memfs", () => {
 
         let watcher: FsWatcher;
 
@@ -49,17 +49,16 @@ describe("fs watcher factory utils", () => {
             
             watcher.add("dir1/dir2/file.txt");
 
-            watcher.on("change", (filename)=>{         
+            watcher.on("all", (eventName, filePath)=>{         
                 
-                expect(filename).to.equal("/dir1/dir2/file.txt");
+                expect(filePath).to.equal("/dir1/dir2/file.txt");
                 if (count++===0) {
                     watcher.close();
                     done();
                 }
             });
 
-            fakeFs.promises
-                .writeFile("dir1/dir2/file.txt", "567");
+            fakeFs.writeFileSync("dir1/dir2/file.txt", "567");
         });
     });
 

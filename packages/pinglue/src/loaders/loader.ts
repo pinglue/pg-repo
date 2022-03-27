@@ -9,7 +9,7 @@ import {
 } from "@pinglue/utils";
 
 import {FsModule, fsFactory} from "@pinglue/utils/bm-factories";
-import { emptyPrint, emptyStyle } from "@pinglue/utils";
+import {emptyPrint, emptyStyle} from "@pinglue/utils";
 
 import {
     _clone
@@ -17,7 +17,7 @@ import {
 
 import {FsWatcher} from "@pinglue/utils/bm-factories";
 
-import {Subject, ReplaySubject, pipe} from "rxjs";
+import {ReplaySubject} from "rxjs";
 import {take} from "rxjs/operators"
 
 
@@ -48,13 +48,14 @@ export enum LoadEventType {
     DIR_ADD,
     DIR_DELETE,
 
+    ERROR,
     UNKNOWN    
 }
 
 /**
  * represents info about a change in data
  */
-interface DataChangeInfo {
+export interface DataChangeInfo {
 
     type: LoadEventType;
 
@@ -90,7 +91,7 @@ export interface LoadEventWithData extends LoadEvent {
 }
 
 export interface LoadEventWithoutData extends LoadEvent {
-    data: never;
+    data?: never;
 }
  
 
@@ -149,7 +150,7 @@ export abstract class Loader {
     // shorthands
     protected readonly print: Printer = this.settings?.print || emptyPrint;
     protected readonly style: Styler = this.settings?.style || emptyStyle;
-    protected readonly fs: FsModule = this.settings?.fs || fsFactory();
+    protected readonly fs: FsModule = this.settings?.fs || fsFactory() as FsModule;
 
     // main state model - a map from source id to source object
     protected readonly sources = new Map<string, DataSourceInfo>();
@@ -170,7 +171,7 @@ export abstract class Loader {
      * @param param0 
      * @throws if any error happen (in case of error will emit and error load event)
      */
-     protected abstract onDataChange({
+    protected abstract onDataChange({
         source,
         dataChangeInfo 
     }: {
@@ -188,6 +189,12 @@ export abstract class Loader {
     }
 
     #emitLoad(event?: LoadEventWithoutData) {
+
+        if (event.error) {
+            this.load$.next(event as LoadEventError);
+            return;
+        }
+
         if (!this.#isAllDataAvailable()) return;
 
         let data: Object|null|undefined;
@@ -200,7 +207,7 @@ export abstract class Loader {
         }
 
         if (typeof data !== "undefined") this.load$.next(
-            _default(event, {
+            _default(event || {}, {
                 dataChangeInfo: {type: LoadEventType.UNKNOWN},
                 data
             }) as LoadEventWithData);
@@ -208,13 +215,13 @@ export abstract class Loader {
 
     #emitError(error: Message, event?: LoadEventWithoutData) {
         this.load$.next(
-            _default(event, {
+            _default(event || {}, {
                 dataChangeInfo: {type: LoadEventType.UNKNOWN},
                 error,
             }) as LoadEventError);
     }
 
-    addFsSource(source: FsDataSource) {
+    protected addFsSource(source: FsDataSource) {
         // already added
         if (this.sources.has(source.id)) return;
         this.sources.set(source.id, {source});
@@ -231,15 +238,17 @@ export abstract class Loader {
                 if (typeof this.getSourceData(source.id) === "undefined")
                     return;
 
+                const dataChangeInfo = {type: LoadEventType.CHANGE, filePath};
+
                 try {
                     const loadEvent = this.onDataChange({
                         source, 
-                        dataChangeInfo: {type: LoadEventType.CHANGE, filePath}
+                        dataChangeInfo 
                     });
                     this.#emitLoad(loadEvent);
                 }
                 catch(error) {
-                    this.#emitError(error);
+                    this.#emitError(error, {dataChangeInfo});
                 }
             });
         }
@@ -247,20 +256,21 @@ export abstract class Loader {
         // initial file load
 
         setImmediate(()=>{
+            const dataChangeInfo = {type: LoadEventType.INITIAL_LOAD};
             try {
                 const loadEvent = this.onDataChange({
                     source, 
-                    dataChangeInfo: {type: LoadEventType.INITIAL_LOAD}
+                    dataChangeInfo
                 });
                 this.#emitLoad(loadEvent);
             }
             catch(error) {
-                this.#emitError(error);
+                this.#emitError(error, {dataChangeInfo});
             }
         });        
     }
 
-    addSubLoaderSource(source: SubLoaderDataSource) {
+    protected addSubLoaderSource(source: SubLoaderDataSource) {
         // already added
         if (this.sources.has(source.id)) return;
         this.sources.set(source.id, {source});
@@ -303,7 +313,7 @@ export abstract class Loader {
      * @returns 
      * @throws if source id not found
      */
-    getSourceData(sourceId: string) {
+     protected getSourceData(sourceId: string) {
         if (!this.sources.has(sourceId)) 
             throw Msg.error("err-source-not-found", {sourceId});
         return this.sources.get(sourceId).dataSnapshot;
@@ -315,14 +325,14 @@ export abstract class Loader {
      * @param data 
      * @throws if source id not found
      */
-    setSourceData(sourceId: string, data: null|Object) {
+     protected setSourceData(sourceId: string, data: null|Object) {
         if (!this.sources.has(sourceId)) 
             throw Msg.error("err-source-not-found", {sourceId});
         this.sources.get(sourceId).dataSnapshot = data;
     }
     
 
-    removeSource(sourceId: string) {
+    protected removeSource(sourceId: string) {
         // not there?
         if (!this.sources.has(sourceId)) return;
 
@@ -334,10 +344,10 @@ export abstract class Loader {
         if (source.type === "sub-loader")
             (source as SubLoaderDataSource).loader.close();
         else if (source.type === "fs") 
-            (source as FsDataSource).fsWatcher.close();
+            (source as FsDataSource).fsWatcher?.close();
     }
 
-    removeAllSources(): void {
+    protected removeAllSources(): void {
 
         for(const info of this.sources.values()) {
             this.removeSource(info.source.id);
