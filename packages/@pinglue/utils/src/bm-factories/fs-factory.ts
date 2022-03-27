@@ -9,7 +9,7 @@ export const ASYNC_FUNCS = [
     "access", "appendFile", "chmod", "chown", "copyFile",
     "lchown", "lutimes", "link", "lstat", "mkdir", "mkdtemp", "open", "opendir",
     "readdir", "readFile", "readlink", "realpath", "rename", "rmdir", "rm",
-    "stat", "symlink", "truncate", "unlink", "utimes", "watch", "writeFile"
+    "stat", "symlink", "truncate", "unlink", "utimes", "writeFile"
 ];
 
 export const SYNC_FUNCS = [
@@ -55,6 +55,9 @@ export function fsFactory(
 
     }, fs);
 
+    // adding callback watch
+    fs.watch = fsModule.watch;
+
     // pathExists
     fs.pathExists = async(path: string): Promise<boolean> => {
 
@@ -65,7 +68,7 @@ export function fsFactory(
 
     // read json
     fs.readJSON = async(path: string): Promise<Object> => {
-
+        // TODO: more accurate error handling
         const str = await fs.readFile(path, "utf8");
         return JSON.parse(str);
 
