@@ -50,13 +50,16 @@ export class FsWatcher extends EventEmitter {
             return this;
         
         // watching
+
+        if (!this.fsModule.pathExistsSync(absPath))
+            return this;
       
         const abortSignal = new AbortController();
         this.fsModule.watch(absPath, {
             signal: abortSignal
         },
         (eventType) => {            
-            this.emit(eventType, absPath);
+            this.emit("all", eventType, absPath);
         });
 
         this.pathsInfo.set(absPath, {abortSignal});           

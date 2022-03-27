@@ -56,24 +56,20 @@ export class PkgJsonLoader extends Loader {
         }
     ): LoadEventWithoutData {
 
-        try {
-            const data = this.fs.readJSONSync(path.join(
-                this.settings.pkgPath,
-                "package.json"
-            ));
-            this.setSourceData(source.id, data);
+        const filePath = path.resolve(
+            this.settings.pkgPath,
+            "package.json"
+        );
 
-            return {
-                dataChangeInfo,
-                changedSourceType: LoadEventSourceType.PKG_JSON,
-                pkgName: data.name,
-            };
+        const data = this.fs.readJSONSync(filePath);
+        this.setSourceData(source.id, data);
 
-        }
-        catch(error) {
-            // TODO: more accurate error handling
-            throw error;
-        }        
+        return {
+            dataChangeInfo: {...dataChangeInfo, filePath},
+            changedSourceType: LoadEventSourceType.PKG_JSON,
+            pkgName: data.name,
+        };
+
     }
 
     protected reduce(): Object {

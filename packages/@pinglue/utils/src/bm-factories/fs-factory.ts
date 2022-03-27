@@ -4,6 +4,7 @@ import * as nodePath from "path";
 
 import * as nodeFs from "fs";
 import * as nodeFsPromises from "fs/promises";
+import { Msg } from "../message.js";
 
 export const ASYNC_FUNCS = [
     "access", "appendFile", "chmod", "chown", "copyFile",
@@ -67,32 +68,86 @@ export function fsFactory(
     fs.pathExistsSync = fs.existsSync;
 
     // read json
-    fs.readJSON = async(path: string): Promise<Object> => {
-        // TODO: more accurate error handling
-        const str = await fs.readFile(path, "utf8");
-        return JSON.parse(str);
+    fs.readJSON = async(filePath: string): Promise<Object> => {
+
+        let str: string;
+        try {
+            str = await fs.readFile(filePath, "utf8");
+        }
+        catch(error) {
+            throw Msg.error("err-file-read-failed", {filePath, error});
+        }
+        let ans;
+        
+        try {
+            ans = JSON.parse(str);
+        }
+        catch(error) {
+            throw Msg.error("err-invalid-json-format", {filePath, str, error});
+        }
+
+        return ans;
 
     };
 
-    fs.readJSONSync = (path: string): Object => {
+    fs.readJSONSync = (filePath: string): Object => {
 
-        const str = fs.readFileSync(path, "utf8");
-        return JSON.parse(str);
+        let str: string;
+        try {
+            str = fs.readFileSync(filePath, "utf8");
+        }
+        catch(error) {
+            throw Msg.error("err-file-read-failed", {filePath, error});
+        }
+        let ans;
+        
+        try {
+            ans = JSON.parse(str);
+        }
+        catch(error) {
+            throw Msg.error("err-invalid-json-format", {filePath, str, error});
+        }
+
+        return ans;
 
     };
 
     // write json
-    fs.writeJSON = async(path: string, object: Object, options?: {mode?: number; flag?: string}): Promise<void> => {
+    fs.writeJSON = async(filePath: string, object: Object, options?: {mode?: number; flag?: string}): Promise<void> => {
 
-        const str = JSON.stringify(object);
-        await fs.writeFile(path, str, {...options, encoding: "utf8"});
+        let str: string;
+        try {
+            str = JSON.stringify(object);
+        }
+        catch(error) {
+            throw Msg.error("err-json-stringify-failed", {error, object});
+        }
+
+        try {
+            await fs.writeFile(filePath, str, {...options, encoding: "utf8"});
+        }
+        catch(error) {
+            throw Msg.error("err-file-write-failed", {filePath, error});
+        }
 
     };
 
-    fs.writeJSONSync = (path: string, object: Object, options?: {mode?: number; flag?: string}): void => {
+    fs.writeJSONSync = (filePath: string, object: Object, options?: {mode?: number; flag?: string}): void => {
 
-        const str = JSON.stringify(object);
-        fs.writeFileSync(path, str, {...options, encoding: "utf8"});
+        let str: string;
+        try {
+            str = JSON.stringify(object);
+        }
+        catch(error) {
+            throw Msg.error("err-json-stringify-failed", {error, object});
+        }
+
+        try {
+            fs.writeFileSync(filePath, str, {...options, encoding: "utf8"}); 
+        }
+        catch(error) {
+            throw Msg.error("err-file-write-failed", {filePath, error});
+        }
 
     };
 
