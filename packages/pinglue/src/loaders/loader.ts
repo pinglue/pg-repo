@@ -9,7 +9,7 @@ import {
 } from "@pinglue/utils";
 
 import {FsModule, fsFactory} from "@pinglue/utils/bm-factories";
-import { emptyPrint, emptyStyle } from "@pinglue/utils";
+import {emptyPrint, emptyStyle} from "@pinglue/utils";
 
 import {
     _clone
@@ -17,7 +17,7 @@ import {
 
 import {FsWatcher} from "@pinglue/utils/bm-factories";
 
-import {Subject, ReplaySubject, pipe} from "rxjs";
+import {ReplaySubject} from "rxjs";
 import {take} from "rxjs/operators"
 
 
@@ -54,7 +54,7 @@ export enum LoadEventType {
 /**
  * represents info about a change in data
  */
-interface DataChangeInfo {
+export interface DataChangeInfo {
 
     type: LoadEventType;
 
@@ -90,7 +90,7 @@ export interface LoadEventWithData extends LoadEvent {
 }
 
 export interface LoadEventWithoutData extends LoadEvent {
-    data: never;
+    data?: never;
 }
  
 
@@ -149,7 +149,7 @@ export abstract class Loader {
     // shorthands
     protected readonly print: Printer = this.settings?.print || emptyPrint;
     protected readonly style: Styler = this.settings?.style || emptyStyle;
-    protected readonly fs: FsModule = this.settings?.fs || fsFactory();
+    protected readonly fs: FsModule = this.settings?.fs || fsFactory() as FsModule;
 
     // main state model - a map from source id to source object
     protected readonly sources = new Map<string, DataSourceInfo>();
