@@ -4,6 +4,7 @@ import path from "path";
 import {fs as fakeFs, vol as fakeVol} from "memfs";
 import chokidar from "chokidar";
 
+import {fsFactory} from "./fs-factory.js";
 import {FsWatcher, fsWatcherFactory} from "./fs-watcher-factory.js";
 
 describe("fs watcher factory utils", () => {
@@ -23,18 +24,18 @@ describe("fs watcher factory utils", () => {
 
     it("should not return Chokidar instance with non-default args", () => {
         const watcher = fsWatcherFactory(
-            fakeFs, fakeFs.promises
+            fsFactory(fakeFs, fakeFs.promises)
         );
         expect(watcher).not.to.be.instanceOf(chokidar.FSWatcher);
     });
 
-    describe.only("testing with memfs", () => {
+    describe("testing with memfs", () => {
 
         let watcher: FsWatcher;
 
         beforeEach(() => {
             watcher = fsWatcherFactory(
-                fakeFs, fakeFs.promises
+                fsFactory(fakeFs, fakeFs.promises)
             );
             fakeVol.fromJSON({
                 "/file.txt": "123",
@@ -51,7 +52,10 @@ describe("fs watcher factory utils", () => {
             watcher.on("change", (filename)=>{         
                 
                 expect(filename).to.equal("/dir1/dir2/file.txt");
-                if (count++===0) done();
+                if (count++===0) {
+                    watcher.close();
+                    done();
+                }
             });
 
             fakeFs.promises

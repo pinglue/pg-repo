@@ -1,25 +1,24 @@
 
 import chokidar from "chokidar";
-import * as nodeFs from "fs";
-import * as nodeFsPromises from "fs/promises";
 import path from "path";
-import { EventEmitter } from "events";
+import {default as nodeFs} from "fs";
+import {EventEmitter} from "events";
+
+import {FsModule} from "./fs-factory.js";
 
 export function fsWatcherFactory(
-    fsModule: any = nodeFs, 
-    fsPromisesModule: any = nodeFsPromises,
+    fsModule?: FsModule,
     options?: chokidar.WatchOptions
 ): FsWatcher {
 
     // defaulting to chokidar
     if (
-        fsModule === nodeFs &&
-        fsPromisesModule === nodeFsPromises
+        typeof fsModule === "undefined"
     )   return chokidar.watch([], options) as any as FsWatcher;
 
     // building based on fs/promises watch
     return new FsWatcher(
-        fsModule, fsPromisesModule, options
+        fsModule, options
     );
 
 }
@@ -30,8 +29,7 @@ export class FsWatcher extends EventEmitter {
     pathsInfo = new Map<string, {abortSignal: AbortController}>();
 
     constructor(
-        private fsModule: any = nodeFs, 
-        private fsPromisesModule: any = nodeFsPromises,
+        private fsModule: FsModule,
         private options?: chokidar.WatchOptions
     ) {
         super();
