@@ -1,0 +1,8 @@
+spec:
+  # - "lib/bm-factories/fs-find-pkg-path.spec.js"
+  - "lib/**/*.spec.js"
+  - "src/**/*.spec.js"
+timeout: 0
+watch-files:
+  - "lib/**/*.js"
+  

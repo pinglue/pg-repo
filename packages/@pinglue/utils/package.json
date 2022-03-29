@@ -25,6 +25,7 @@
     "clean-node": "rm -rf node_modules",
     "clean-all": "npm run clean-extras; npm run clean-ts; npm run clean-node",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
+    "test-mocha": "npx mocha --loader=@pinglue/utils/testing/replace-module --no-warnings",
     "lint": "node_modules/.bin/eslint 'src/**/*.ts'"
   },
   "dependencies": {
