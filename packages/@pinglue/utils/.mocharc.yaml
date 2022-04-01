@@ -1,5 +1,5 @@
 spec:
-  - "lib/object-utils/*.spec.js"
+  - "lib/**/*.spec.js"
 timeout: 0
 watch-files:
   - "lib/**/*.js"
