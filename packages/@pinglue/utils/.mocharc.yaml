@@ -1,0 +1,6 @@
+spec:
+  - "lib/**/*.spec.js"
+timeout: 0
+watch-files:
+  - "lib/**/*.js"
+  
